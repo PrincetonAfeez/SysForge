@@ -173,6 +173,95 @@ def build_log_path(prefix: str = "organizer") -> Path:
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     return get_organizer_log_dir() / f"{prefix}_{timestamp}.json"
 
+def run_organizer(
+    target: Path,
+    *,
+    sort_mode: str,
+    rules_path: Path | None,
+    dry_run: bool,
+    conflict_mode: str,
+    include_hidden: bool,
+    recursive: bool,
+    config_path: Path | None = None,
+) -> dict[str, Any]:
+    ensure_home_layout()
+    if not target.exists() or not target.is_dir():
+        raise ValueError(f"Target directory does not exist: {target}")
+
+    rules = load_rules(rules_path, config_path)
+    files, initial_messages = iter_candidate_files(target, recursive, include_hidden)
+
+    actions: list[dict[str, Any]] = []
+    skipped = len(initial_messages)
+    errors = 0
+    total_size_processed = 0
+
+    for file_path in files:
+        try:
+            total_size_processed += file_path.stat().st_size
+            relative_folder = resolve_relative_folder(file_path, sort_mode, rules)
+            destination, action = choose_destination(
+                file_path, target, relative_folder, conflict_mode
+            )
+
+            if destination is None:
+                skipped += 1
+                actions.append(
+                    {
+                        "source": _normalize_log_path(file_path),
+                        "destination": None,
+                        "status": "skipped",
+                        "strategy_used": action,
+                    }
+                )
+                continue
+
+            final_destination = perform_move(file_path, destination, action, dry_run)
+            actions.append(
+                {
+                    "source": _normalize_log_path(file_path),
+                    "destination": _normalize_log_path(final_destination),
+                    "status": "planned" if dry_run else "moved",
+                    "strategy_used": action,
+                }
+            )
+        except Exception as exc:
+            errors += 1
+            actions.append(
+                {
+                    "source": _normalize_log_path(file_path),
+                    "destination": None,
+                    "status": "error",
+                    "error": str(exc),
+                }
+            )
+
+    moved = sum(1 for item in actions if item["status"] in {"planned", "moved"})
+    summary = {
+        "moved": moved,
+        "skipped": skipped,
+        "errors": errors,
+        "total_size_processed": total_size_processed,
+    }
+    log_payload = {
+        "timestamp": datetime.now().isoformat(),
+        "target": _normalize_log_path(target),
+        "mode": sort_mode,
+        "dry_run": dry_run,
+        "conflict_mode": conflict_mode,
+        "messages": initial_messages,
+        "moves": actions,
+        "summary": summary,
+    }
+    log_path = build_log_path()
+    write_json_file(log_path, log_payload)
+    logger.info("Organizer run complete for %s", target)
+    return {
+        "log_path": log_path,
+        "summary": summary,
+        "moves": actions,
+        "messages": initial_messages,
+    }
 
 
 
