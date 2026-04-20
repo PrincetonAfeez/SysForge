@@ -52,3 +52,6 @@ def get_latest_health_file() -> Path:
 
 def get_reports_dir() -> Path:
     return get_home_dir() / "reports"
+
+def get_backups_dir() -> Path:
+    return get_home_dir() / "backups"
