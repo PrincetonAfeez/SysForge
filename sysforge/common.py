@@ -50,3 +50,9 @@ def write_text_file(path: Path, text: str) -> None:
     path.write_text(text, encoding="utf-8")
 
 
+def append_json_line(path: Path, payload: dict[str, Any]) -> None:
+    ensure_parent(path)
+    with path.open("a", encoding="utf-8") as handle:
+        handle.write(json.dumps(payload, ensure_ascii=True))
+        handle.write("\n")
+
