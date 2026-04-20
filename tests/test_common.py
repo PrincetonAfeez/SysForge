@@ -46,3 +46,11 @@ def test_parse_cli_value() -> None:
     assert parse_cli_value("3.5") == 3.5
     assert parse_cli_value('{"a":1}') == {"a": 1}
     assert parse_cli_value("plain") == "plain"
+
+def test_flatten_and_nested_roundtrip() -> None:
+    data = {"app": {"db": {"host": "localhost"}}}
+    flat = flatten_dict(data)
+    assert flat == {"app.db.host": "localhost"}
+    assert get_nested_value(data, "app.db.host") == "localhost"
+    set_nested_value(data, "app.db.port", 5432)
+    assert data["app"]["db"]["port"] == 5432
