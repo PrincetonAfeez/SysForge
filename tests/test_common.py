@@ -26,3 +26,8 @@ def test_load_json_file_missing_with_default(tmp_path: Path) -> None:
     missing = tmp_path / "nope.json"
     assert load_json_file(missing, default={"k": 1}) == {"k": 1}
 
+def test_write_json_file_roundtrip(tmp_path: Path) -> None:
+    path = tmp_path / "data.json"
+    payload = {"a": 1, "nested": {"b": True}}
+    write_json_file(path, payload)
+    assert load_json_file(path) == payload
