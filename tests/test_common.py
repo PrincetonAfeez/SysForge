@@ -68,3 +68,8 @@ def test_human_size_and_format_duration() -> None:
 def test_get_nested_value_missing() -> None:
     with pytest.raises(KeyError):
         get_nested_value({}, "missing.key")
+
+def test_is_hidden_path_dot_prefix(tmp_path: Path) -> None:
+    assert is_hidden_path(tmp_path / ".env") is True
+    assert is_hidden_path(tmp_path / "visible.txt") is False
+
