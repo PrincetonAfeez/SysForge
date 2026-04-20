@@ -308,6 +308,21 @@ def build_site(
                 errors.append(str(exc))
         build_index_page(output, built_files, theme_name, template_path)
 
+    
+    append_build_history(
+        {
+            "timestamp": datetime.now().isoformat(),
+            "input_path": str(source),
+            "output_path": str(output),
+            "theme": theme_name,
+            "files_built": len(built_files),
+            "errors": errors,
+        }
+    )
+
+    logger.info("Markdown build completed for %s", source)
+    return {"built_files": built_files, "errors": errors}
+
 
 
 
