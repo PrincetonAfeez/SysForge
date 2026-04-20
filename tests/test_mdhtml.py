@@ -38,3 +38,13 @@ def test_parse_frontmatter_invalid_line(tmp_path: Path) -> None:
     text = "---\nno colon line\n---\n"
     with pytest.raises(ValueError, match="invalid frontmatter"):
         mdhtml.parse_frontmatter(text, src)
+
+
+def test_collect_markdown_files_case_insensitive(tmp_path: Path) -> None:
+    root = tmp_path / "docs"
+    root.mkdir()
+    (root / "a.md").write_text("a", encoding="utf-8")
+    (root / "b.MD").write_text("b", encoding="utf-8")
+    (root / "c.txt").write_text("c", encoding="utf-8")
+    found = mdhtml.collect_markdown_files(root)
+    assert {p.name for p in found} == {"a.md", "b.MD"}
