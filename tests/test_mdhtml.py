@@ -55,3 +55,13 @@ def test_parse_markdown_image_target() -> None:
     assert mdhtml._parse_markdown_image_target('x.png "title"') == "x.png"
     assert mdhtml._parse_markdown_image_target("https://ex/a.png") == "https://ex/a.png"
     assert mdhtml._parse_markdown_image_target("data:image/png;base64,xx") is None
+
+
+def test_index_href_for_output_relative(tmp_path: Path) -> None:
+    out = tmp_path / "out"
+    out.mkdir()
+    f = out / "sub" / "a.html"
+    f.parent.mkdir(parents=True)
+    f.write_text("x", encoding="utf-8")
+    href = mdhtml._index_href_for_output(f, out)
+    assert href.replace("\\", "/") == "sub/a.html"
