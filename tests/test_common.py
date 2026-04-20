@@ -37,3 +37,12 @@ def test_write_json_file_atomic(tmp_path: Path) -> None:
     write_json_file(path, {"v": 1}, atomic=True)
     assert load_json_file(path) == {"v": 1}
     assert not (tmp_path / "atomic.json.tmp").exists()
+
+def test_parse_cli_value() -> None:
+    assert parse_cli_value("true") is True
+    assert parse_cli_value("FALSE") is False
+    assert parse_cli_value("null") is None
+    assert parse_cli_value("42") == 42
+    assert parse_cli_value("3.5") == 3.5
+    assert parse_cli_value('{"a":1}') == {"a": 1}
+    assert parse_cli_value("plain") == "plain"
