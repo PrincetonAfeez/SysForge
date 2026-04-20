@@ -11,3 +11,6 @@ def get_home_dir() -> Path:
     if override:
         return Path(override).expanduser()
     return Path.home() / ".sysforge"
+
+def get_logs_dir() -> Path:
+    return get_home_dir() / "logs"
