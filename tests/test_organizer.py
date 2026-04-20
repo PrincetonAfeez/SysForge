@@ -40,5 +40,11 @@ def test_resolve_relative_folder_size_buckets_sorted(tmp_path: Path) -> None:
     big.write_bytes(b"1" * (2 * 1024 * 1024))
     assert resolve_relative_folder(big, "size", rules) == Path("Large")
 
+def test_resolve_relative_folder_extension_no_suffix_category() -> None:
+    rules = {
+        "extension_categories": {".txt": "Text"},
+        "extension_no_suffix_category": "Scripts",
+    }
+    assert resolve_relative_folder(Path("Makefile"), "extension", rules) == Path("Scripts")
 
 
