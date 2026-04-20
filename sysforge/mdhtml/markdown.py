@@ -67,6 +67,14 @@ def _apply_html_template(
     result = _replace_placeholder_once(result, "content", content)
     return result
 
+def load_markdown_dependency() -> Any:
+    try:
+        return importlib.import_module("markdown")
+    except ModuleNotFoundError:
+        print_error(
+            "The markdown package is not installed. Run `pip install -e .` first.",
+            exit_code=2,
+        )
 
 
 
