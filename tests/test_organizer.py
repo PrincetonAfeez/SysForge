@@ -51,3 +51,19 @@ def test_resolve_relative_folder_extension_empty_explicit() -> None:
     rules = {"extension_categories": {"": "NoExt"}}
     assert resolve_relative_folder(Path("README"), "extension", rules) == Path("NoExt")
 
+def test_run_organizer_missing_target_raises(isolated_sysforge_home: None, tmp_path: Path) -> None:
+    rules_path = tmp_path / "rules.json"
+    rules_path.write_text("{}", encoding="utf-8")
+    missing = tmp_path / "nope"
+    with pytest.raises(ValueError, match="Target directory"):
+        run_organizer(
+            missing,
+            sort_mode="extension",
+            rules_path=rules_path,
+            dry_run=True,
+            conflict_mode="rename",
+            include_hidden=False,
+            recursive=False,
+        )
+
+
