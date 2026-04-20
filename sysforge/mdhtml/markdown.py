@@ -184,6 +184,38 @@ def collect_markdown_files(source: Path) -> list[Path]:
     ]
     return sorted(paths, key=lambda p: str(p).casefold())
 
+def convert_markdown_file(
+    source_file: Path,
+    destination_file: Path,
+    *,
+    theme_name: str,
+    template_path: Path | None,
+) -> dict[str, Any]:
+    markdown_module = load_markdown_dependency()
+    raw_text = source_file.read_text(encoding="utf-8")
+    frontmatter, markdown_body = parse_frontmatter(raw_text, source_file)
+    title = guess_title(frontmatter, markdown_body, source_file)
+    html_body = markdown_module.markdown(
+        markdown_body,
+        extensions=["fenced_code", "tables", "toc", "codehilite"],
+    )
+    document = render_html_document(
+        html_body,
+        title=title,
+        generated_at=datetime.now().isoformat(timespec="seconds"),
+        template_path=template_path,
+        theme_name=theme_name,
+    )
+    destination_file.parent.mkdir(parents=True, exist_ok=True)
+    write_text_file(destination_file, document)
+    copy_relative_images(source_file, destination_file, markdown_body)
+
+    return {
+        "source": str(source_file),
+        "output": str(destination_file),
+        "title": title,
+        "date": frontmatter.get("date", ""),
+    }
 
 
 
