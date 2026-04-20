@@ -66,4 +66,26 @@ def test_run_organizer_missing_target_raises(isolated_sysforge_home: None, tmp_p
             recursive=False,
         )
 
+def test_run_organizer_moves_by_extension(isolated_sysforge_home: None, tmp_path: Path) -> None:
+    target = tmp_path / "downloads"
+    target.mkdir()
+    (target / "readme.txt").write_text("hello", encoding="utf-8")
+    rules_path = tmp_path / "rules.json"
+    rules_path.write_text(
+        json.dumps({"extension_categories": {".txt": "TextFiles"}}),
+        encoding="utf-8",
+    )
+
+    result = run_organizer(
+        target,
+        sort_mode="extension",
+        rules_path=rules_path,
+        dry_run=False,
+        conflict_mode="rename",
+        include_hidden=False,
+        recursive=False,
+    )
+    assert result["summary"]["moved"] == 1
+    assert (target / "TextFiles" / "readme.txt").exists()
+    assert not (target / "readme.txt").exists()
 
