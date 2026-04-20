@@ -17,3 +17,6 @@ def get_logs_dir() -> Path:
 
 def get_central_log_file() -> Path:
     return get_logs_dir() / "sysforge.log"
+
+def get_organizer_log_dir() -> Path:
+    return get_home_dir() / "organizer" / "logs"
