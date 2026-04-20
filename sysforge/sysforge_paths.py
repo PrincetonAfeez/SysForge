@@ -35,3 +35,6 @@ def get_briefing_history_file() -> Path:
 
 def get_time_dir() -> Path:
     return get_home_dir() / "time"
+
+def get_timesheet_file() -> Path:
+    return get_time_dir() / "timesheet.json"
