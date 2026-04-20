@@ -272,6 +272,83 @@ def find_latest_real_log() -> Path | None:
             return log_file
     return None
 
+def undo_last_run() -> tuple[Path, dict[str, int]]:
+    ensure_home_layout()
+    log_path = find_latest_real_log()
+    if log_path is None:
+        raise FileNotFoundError("No organizer log found to undo.")
+
+    payload = load_json_file(log_path, default={})
+    restored = 0
+    skipped = 0
+    errors = 0
+    undo_actions: list[dict[str, Any]] = []
+
+    for move in reversed(payload.get("moves", [])):
+        if move.get("status") != "moved":
+            continue
+
+        destination = Path(move["destination"])
+        source = Path(move["source"])
+
+        if not destination.exists():
+            skipped += 1
+            undo_actions.append(
+                {
+                    "source": _normalize_log_path(destination),
+                    "destination": _normalize_log_path(source),
+                    "status": "skipped",
+                    "reason": "Moved file no longer exists",
+                }
+            )
+            continue
+
+        if source.exists():
+            skipped += 1
+            undo_actions.append(
+                {
+                    "source": _normalize_log_path(destination),
+                    "destination": _normalize_log_path(source),
+                    "status": "skipped",
+                    "reason": "Original path already exists",
+                }
+            )
+            continue
+
+        try:
+            source.parent.mkdir(parents=True, exist_ok=True)
+            shutil.move(str(destination), str(source))
+            restored += 1
+            undo_actions.append(
+                {
+                    "source": _normalize_log_path(destination),
+                    "destination": _normalize_log_path(source),
+                    "status": "restored",
+                }
+            )
+        except Exception as exc:
+            errors += 1
+            undo_actions.append(
+                {
+                    "source": _normalize_log_path(destination),
+                    "destination": _normalize_log_path(source),
+                    "status": "error",
+                    "error": str(exc),
+                }
+            )
+
+    undo_log_path = build_log_path(prefix="organizer_undo")
+    write_json_file(
+        undo_log_path,
+        {
+            "timestamp": datetime.now().isoformat(),
+            "undo_for": _normalize_log_path(log_path),
+            "moves": undo_actions,
+            "summary": {"restored": restored, "skipped": skipped, "errors": errors},
+        },
+    )
+    logger.info("Undo completed for %s", log_path)
+    return undo_log_path, {"restored": restored, "skipped": skipped, "errors": errors}
 
 
 
