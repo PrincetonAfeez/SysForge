@@ -143,6 +143,37 @@ def build_pygments_css() -> str:
     formatter_class = load_pygments_formatter()
     return cast(str, formatter_class().get_style_defs(".codehilite"))
 
+def render_html_document(
+    body_html: str,
+    *,
+    title: str,
+    generated_at: str,
+    template_path: Path | None,
+    theme_name: str,
+) -> str:
+    template = load_template(template_path)
+    return _apply_html_template(
+        template,
+        theme_css=load_theme_css(theme_name),
+        pygments_css=build_pygments_css(),
+        title=escape(title),
+        generated_at=escape(generated_at),
+        content=body_html,
+    )
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
