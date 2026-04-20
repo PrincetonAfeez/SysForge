@@ -17,3 +17,11 @@ def test_parse_frontmatter_basic(tmp_path: Path) -> None:
     fm, body = mdhtml.parse_frontmatter(text, src)
     assert fm == {"title": "Hello", "date": "2024-01-01"}
     assert body == "Body here"
+
+def test_parse_frontmatter_skips_blank_and_comments(tmp_path: Path) -> None:
+    src = tmp_path / "a.md"
+    text = "---\n\n# ignored in fm\ntitle: 'Quoted'\n\n---\nOK\n"
+    fm, body = mdhtml.parse_frontmatter(text, src)
+    assert fm["title"] == "Quoted"
+    assert body == "OK"
+
