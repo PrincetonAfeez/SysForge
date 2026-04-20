@@ -14,3 +14,5 @@ from typing import Any, NoReturn
 
 import typer
 
+def ensure_parent(path: Path) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
