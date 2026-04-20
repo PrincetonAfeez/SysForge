@@ -48,3 +48,10 @@ def test_collect_markdown_files_case_insensitive(tmp_path: Path) -> None:
     (root / "c.txt").write_text("c", encoding="utf-8")
     found = mdhtml.collect_markdown_files(root)
     assert {p.name for p in found} == {"a.md", "b.MD"}
+
+def test_parse_markdown_image_target() -> None:
+    assert mdhtml._parse_markdown_image_target("  ./x.png  ") == "./x.png"
+    assert mdhtml._parse_markdown_image_target("<img/foo.png>") == "img/foo.png"
+    assert mdhtml._parse_markdown_image_target('x.png "title"') == "x.png"
+    assert mdhtml._parse_markdown_image_target("https://ex/a.png") == "https://ex/a.png"
+    assert mdhtml._parse_markdown_image_target("data:image/png;base64,xx") is None
