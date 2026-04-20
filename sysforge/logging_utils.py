@@ -43,3 +43,8 @@ def get_logger(name: str) -> logging.Logger:
     logger.propagate = False
     logger._sysforge_ready = True  # type: ignore[attr-defined]
     return logger
+
+
+def log_path_message(logger_name: str, action: str, path: Path) -> None:
+    logger = get_logger(logger_name)
+    logger.info("%s: %s", action, path)
