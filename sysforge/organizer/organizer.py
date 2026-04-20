@@ -422,16 +422,16 @@ def organize(
     print_summary(result)
 
 
-
-
-
-
-
-
-
-
-
-
+@app.command("undo")
+def undo_command() -> None:
+    try:
+        undo_log_path, summary = undo_last_run()
+    except FileNotFoundError as exc:
+        print_error(str(exc))
+    typer.echo(f"Undo log: {undo_log_path}")
+    typer.echo(f"Restored: {summary['restored']}")
+    typer.echo(f"Skipped: {summary['skipped']}")
+    typer.echo(f"Errors: {summary['errors']}")
 
 
 
