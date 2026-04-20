@@ -128,6 +128,10 @@ def guess_title(frontmatter: dict[str, str], body: str, source: Path) -> str:
             return line.lstrip("#").strip()
     return source.stem.replace("_", " ").title()
 
+def load_template(template_path: Path | None) -> str:
+    if template_path is None:
+        template_path = get_markdown_template_path()
+    return template_path.read_text(encoding="utf-8")
 
 
 
