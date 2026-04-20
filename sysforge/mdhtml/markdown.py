@@ -257,6 +257,22 @@ def append_build_history(payload: dict[str, Any]) -> None:
     write_json_file(history_path, history, atomic=True)
 
 
+def build_site(
+    source: Path,
+    output: Path,
+    *,
+    theme_name: str,
+    template_path: Path | None,
+) -> dict[str, Any]:
+    ensure_home_layout()
+    load_shared_config()
+
+    if not source.exists():
+        print_error(f"Source path not found: {source}")
+
+    built_files: list[dict[str, Any]] = []
+    errors: list[str] = []
+
 
 
 
