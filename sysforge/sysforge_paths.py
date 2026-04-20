@@ -67,3 +67,9 @@ def get_default_schema_path() -> Path:
 
 def get_default_organizer_rules_path() -> Path:
     return PACKAGE_ROOT / "data" / "default_organizer_rules.json"
+
+def get_markdown_template_path() -> Path:
+    return PACKAGE_ROOT / "mdhtml" / "template.html"
+
+def get_theme_path(theme_name: str) -> Path:
+    return PACKAGE_ROOT / "mdhtml" / "themes" / f"{theme_name}.css"
