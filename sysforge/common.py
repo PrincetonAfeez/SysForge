@@ -45,4 +45,8 @@ def write_json_file(
     else:
         path.write_text(payload, encoding="utf-8")
 
+def write_text_file(path: Path, text: str) -> None:
+    ensure_parent(path)
+    path.write_text(text, encoding="utf-8")
+
 
