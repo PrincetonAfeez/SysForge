@@ -67,6 +67,28 @@ def load_rules(rules_path: Path | None, config_path: Path | None = None) -> dict
     return cast(dict[str, Any], load_json_file(rules_path, default={}))
 
 
+def iter_candidate_files(
+    target: Path, recursive: bool, include_hidden: bool
+) -> tuple[list[Path], list[str]]:
+    messages: list[str] = []
+    files: list[Path] = []
+    paths = target.rglob("*") if recursive else target.iterdir()
+
+    for path in paths:
+        if not path.exists():
+            continue
+        if path.is_symlink():
+            messages.append(f"Skipped symlink: {_normalize_log_path(path)}")
+            continue
+        if path.is_dir():
+            continue
+        if not include_hidden and is_hidden_path(path):
+            messages.append(f"Skipped hidden file: {_normalize_log_path(path)}")
+            continue
+        files.append(path)
+
+    return files, messages
+
 
 
 
