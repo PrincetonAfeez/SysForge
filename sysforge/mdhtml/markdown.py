@@ -139,6 +139,9 @@ def load_theme_css(theme_name: str) -> str:
         print_error(f"Theme not found: {theme_name}")
     return theme_path.read_text(encoding="utf-8")
 
+def build_pygments_css() -> str:
+    formatter_class = load_pygments_formatter()
+    return cast(str, formatter_class().get_style_defs(".codehilite"))
 
 
 
