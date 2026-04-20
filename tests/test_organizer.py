@@ -47,4 +47,7 @@ def test_resolve_relative_folder_extension_no_suffix_category() -> None:
     }
     assert resolve_relative_folder(Path("Makefile"), "extension", rules) == Path("Scripts")
 
+def test_resolve_relative_folder_extension_empty_explicit() -> None:
+    rules = {"extension_categories": {"": "NoExt"}}
+    assert resolve_relative_folder(Path("README"), "extension", rules) == Path("NoExt")
 
