@@ -250,6 +250,12 @@ def build_index_page(
     )
     write_text_file(output_dir / "index.html", document)
 
+def append_build_history(payload: dict[str, Any]) -> None:
+    history_path = get_docs_history_file()
+    history = load_json_file(history_path, default=[])
+    history.append(payload)
+    write_json_file(history_path, history, atomic=True)
+
 
 
 
