@@ -46,3 +46,6 @@ def get_health_dir() -> Path:
 
 def get_health_log_file() -> Path:
     return get_health_dir() / "health_log.jsonl"
+
+def get_latest_health_file() -> Path:
+    return get_health_dir() / "latest_snapshot.json"
