@@ -361,6 +361,65 @@ def print_summary(result: dict[str, Any]) -> None:
     typer.echo(f"Log file: {result['log_path']}")
 
 
+@app.callback(invoke_without_command=True)
+def organize(
+    ctx: typer.Context,
+    target: Path | None = typer.Argument(None, help="Folder to organize."),
+    by: str = typer.Option("extension", "--by", help="Sort mode: extension, date, or size."),
+    rules: Path | None = typer.Option(None, "--rules", help="JSON rules file."),
+    dry_run: bool = typer.Option(False, "--dry-run", help="Show the plan without moving files."),
+    on_conflict: str = typer.Option("rename", "--on-conflict", help="rename, skip, or overwrite"),
+    include_hidden: bool = typer.Option(False, "--include-hidden", help="Include hidden files."),
+    recursive: bool = typer.Option(False, "--recursive", help="Scan subfolders too."),
+    undo: bool = typer.Option(False, "--undo", help="Undo the most recent non-dry-run move log."),
+    config: Path | None = typer.Option(None, "--config", help="Optional shared config file."),
+) -> None:
+    if ctx.invoked_subcommand:
+        return
+
+    if undo:
+        try:
+            undo_log_path, summary = undo_last_run()
+        except FileNotFoundError as exc:
+            print_error(str(exc))
+        typer.echo(f"Undo log: {undo_log_path}")
+        typer.echo(f"Restored: {summary['restored']}")
+        typer.echo(f"Skipped: {summary['skipped']}")
+        typer.echo(f"Errors: {summary['errors']}")
+        return
+
+    if target is None:
+        print_error("Please provide a folder to organize.")
+
+    if by not in {"extension", "date", "size"}:
+        print_error("--by must be extension, date, or size.")
+    if on_conflict not in {"rename", "skip", "overwrite"}:
+        print_error("--on-conflict must be rename, skip, or overwrite.")
+
+    try:
+        result = run_organizer(
+            target=target,
+            sort_mode=by,
+            rules_path=rules,
+            dry_run=dry_run,
+            conflict_mode=on_conflict,
+            include_hidden=include_hidden,
+            recursive=recursive,
+            config_path=config,
+        )
+    except ValueError as exc:
+        print_error(str(exc))
+    for message in result["messages"]:
+        typer.echo(message)
+
+    if dry_run:
+        typer.echo("")
+        typer.echo("Planned moves")
+        for move in result["moves"]:
+            if move["status"] == "planned":
+                typer.echo(f"{move['source']} -> {move['destination']}")
+
+    print_summary(result)
 
 
 
