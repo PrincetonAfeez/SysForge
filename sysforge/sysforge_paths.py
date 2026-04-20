@@ -76,3 +76,23 @@ def get_theme_path(theme_name: str) -> Path:
 
 def get_briefing_data_dir() -> Path:
     return PACKAGE_ROOT / "briefing" / "data"
+
+def ensure_home_layout() -> None:
+    directories = [
+        get_home_dir(),
+        get_logs_dir(),
+        get_organizer_log_dir(),
+        get_docs_dir(),
+        get_briefings_dir(),
+        get_time_dir(),
+        get_health_dir(),
+        get_reports_dir(),
+        get_backups_dir(),
+    ]
+    for directory in directories:
+        directory.mkdir(parents=True, exist_ok=True)
+
+    default_config = get_default_config_path()
+    user_config = get_user_config_path()
+    if default_config.exists() and not user_config.exists():
+        shutil.copy2(default_config, user_config)
