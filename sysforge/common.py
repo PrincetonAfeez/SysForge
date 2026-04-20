@@ -85,3 +85,12 @@ def is_hidden_path(path: Path) -> bool:
     if raw == invalid:
         return False
     return bool(raw & hidden_flag)
+
+def human_size(size_in_bytes: int) -> str:
+    value = float(size_in_bytes)
+    units = ["B", "KB", "MB", "GB", "TB"]
+    unit_index = 0
+    while value >= 1024 and unit_index < len(units) - 1:
+        value /= 1024
+        unit_index += 1
+    return f"{value:.1f} {units[unit_index]}"
