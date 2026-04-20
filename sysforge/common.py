@@ -126,3 +126,31 @@ def set_nested_value(data: dict[str, Any], dotted_key: str, value: Any) -> None:
         if not isinstance(current, dict):
             raise ValueError(f"Cannot set nested value under non-object key: {part}")
     current[parts[-1]] = value
+
+def parse_cli_value(raw_value: str) -> Any:
+    lowered = raw_value.lower()
+    if lowered == "true":
+        return True
+    if lowered == "false":
+        return False
+    if lowered == "null":
+        return None
+
+    try:
+        return int(raw_value)
+    except ValueError:
+        pass
+
+    try:
+        return float(raw_value)
+    except ValueError:
+        pass
+
+    if raw_value.startswith("{") or raw_value.startswith("["):
+        try:
+            return json.loads(raw_value)
+        except json.JSONDecodeError:
+            return raw_value
+
+    return raw_value
+
