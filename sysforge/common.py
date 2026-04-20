@@ -94,3 +94,8 @@ def human_size(size_in_bytes: int) -> str:
         value /= 1024
         unit_index += 1
     return f"{value:.1f} {units[unit_index]}"
+
+def format_duration(duration_seconds: int) -> str:
+    hours, remainder = divmod(max(duration_seconds, 0), 3600)
+    minutes, _ = divmod(remainder, 60)
+    return f"{hours}h {minutes:02d}m"
