@@ -16,3 +16,11 @@ import typer
 
 def ensure_parent(path: Path) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
+
+def load_json_file(path: Path, default: Any = None) -> Any:
+    if not path.exists():
+        if default is not None:
+            return default
+        raise FileNotFoundError(f"File not found: {path}")
+    with path.open("r", encoding="utf-8") as handle:
+        return json.load(handle)
