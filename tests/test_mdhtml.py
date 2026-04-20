@@ -11,3 +11,9 @@ def test_parse_frontmatter_none() -> None:
     assert fm == {}
     assert body == "Hello\n"
 
+def test_parse_frontmatter_basic(tmp_path: Path) -> None:
+    src = tmp_path / "a.md"
+    text = "---\ntitle: Hello\ndate: 2024-01-01\n---\nBody here\n"
+    fm, body = mdhtml.parse_frontmatter(text, src)
+    assert fm == {"title": "Hello", "date": "2024-01-01"}
+    assert body == "Body here"
