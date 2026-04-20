@@ -30,6 +30,17 @@ logger = get_logger("sysforge.mdhtml")
 IMAGE_PATTERN = re.compile(r"!\[[^\]]*\]\(\s*([^)]+?)\s*\)")
 
 
+def _parse_markdown_image_target(raw: str) -> str | None:
+    inner = raw.strip()
+    if not inner or inner.lower().startswith("data:"):
+        return None
+    if inner.startswith("<"):
+        end = inner.find(">")
+        inner = inner[1:end].strip() if end != -1 else inner[1:].strip()
+    else:
+        inner = inner.split(None, 1)[0].strip()
+    inner = inner.strip("\"'")
+    return inner or None
 
 
 
