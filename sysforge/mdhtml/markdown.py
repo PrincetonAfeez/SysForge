@@ -218,6 +218,13 @@ def convert_markdown_file(
     }
 
 
+def _index_href_for_output(output_file: Path, output_dir: Path) -> str:
+    out_abs = output_file.resolve()
+    base_abs = output_dir.resolve()
+    try:
+        return out_abs.relative_to(base_abs).as_posix()
+    except ValueError:
+        return Path(os.path.relpath(str(out_abs), str(base_abs))).as_posix()
 
 
 
