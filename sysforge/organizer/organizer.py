@@ -26,6 +26,12 @@ app = typer.Typer(help="Organize files in a folder based on extension, date, or 
 logger = get_logger("sysforge.organizer")
 
 
+def _normalize_log_path(path: Path) -> str:
+    try:
+        return str(path.resolve(strict=False))
+    except OSError:
+        return str(path)
+
 
 
 
