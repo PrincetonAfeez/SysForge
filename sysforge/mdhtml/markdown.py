@@ -178,6 +178,12 @@ def copy_relative_images(source_file: Path, destination_file: Path, markdown_tex
         image_destination.write_bytes(image_source.read_bytes())
 
 
+def collect_markdown_files(source: Path) -> list[Path]:
+    paths = [
+        path for path in source.rglob("*") if path.is_file() and path.suffix.casefold() == ".md"
+    ]
+    return sorted(paths, key=lambda p: str(p).casefold())
+
 
 
 
