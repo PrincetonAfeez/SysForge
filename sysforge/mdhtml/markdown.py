@@ -323,6 +323,29 @@ def build_site(
     logger.info("Markdown build completed for %s", source)
     return {"built_files": built_files, "errors": errors}
 
+@app.command()
+def build(
+    source: Path = typer.Argument(..., help="Markdown file or folder."),
+    output: Path = typer.Option(..., "--output", help="HTML file or output folder."),
+    theme: str = typer.Option(None, "--theme", help="light or dark"),
+    template: Path | None = typer.Option(None, "--template", help="Optional HTML template file."),
+) -> None:
+    config = load_shared_config()
+    chosen_theme = theme or config.get("markdown", {}).get("theme", "light")
+    if chosen_theme not in {"light", "dark"}:
+        print_error("--theme must be light or dark.")
+
+    result = build_site(source, output, theme_name=chosen_theme, template_path=template)
+    typer.echo(f"Built {len(result['built_files'])} HTML file(s).")
+    if result["errors"]:
+        typer.echo("")
+        typer.echo("Errors")
+        for error in result["errors"]:
+            typer.echo(f"- {error}")
+        raise typer.Exit(code=1)
+
+    for item in result["built_files"]:
+        typer.echo(f"{item['source']} -> {item['output']}")
 
 
 
