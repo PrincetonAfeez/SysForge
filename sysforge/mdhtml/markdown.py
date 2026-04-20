@@ -90,6 +90,35 @@ def _strip_optional_quotes(value: str) -> str:
         return value[1:-1]
     return value
 
+def parse_frontmatter(raw_text: str, source: Path) -> tuple[dict[str, str], str]:
+    if not raw_text.startswith("---\n"):
+        return {}, raw_text
+
+    lines = raw_text.splitlines()
+    frontmatter: dict[str, str] = {}
+    last_key: str | None = None
+
+    for line_number in range(1, len(lines)):
+        line = lines[line_number]
+        stripped = line.strip()
+        if stripped == "---":
+            body = "\n".join(lines[line_number + 1 :])
+            return frontmatter, body
+        if not stripped or stripped.startswith("#"):
+            continue
+        if ":" not in line:
+            if last_key is None:
+                raise ValueError(f"{source}: invalid frontmatter line {line_number + 1}")
+            frontmatter[last_key] = f"{frontmatter[last_key]}\n{line.rstrip()}"
+            continue
+        key, value = line.split(":", 1)
+        key = key.strip()
+        value = _strip_optional_quotes(value.strip())
+        frontmatter[key] = value
+        last_key = key
+
+    raise ValueError(f"{source}: frontmatter was opened but not closed")
+
 
 
 
