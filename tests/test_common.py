@@ -17,3 +17,8 @@ from sysforge.common import (
     write_json_file,
 )
 
+def test_load_json_file_missing_no_default(tmp_path: Path) -> None:
+    missing = tmp_path / "nope.json"
+    with pytest.raises(FileNotFoundError):
+        load_json_file(missing)
+
