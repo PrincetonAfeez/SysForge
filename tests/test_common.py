@@ -60,3 +60,8 @@ def test_set_nested_value_rejects_non_object_path() -> None:
     with pytest.raises(ValueError):
         set_nested_value(data, "a.b", 1)
 
+def test_human_size_and_format_duration() -> None:
+    assert "KB" in human_size(2048)
+    assert format_duration(3661).startswith("1h")
+    assert format_duration(59) == "0h 00m"
+
