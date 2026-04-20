@@ -119,6 +119,14 @@ def parse_frontmatter(raw_text: str, source: Path) -> tuple[dict[str, str], str]
 
     raise ValueError(f"{source}: frontmatter was opened but not closed")
 
+def guess_title(frontmatter: dict[str, str], body: str, source: Path) -> str:
+    title = frontmatter.get("title", "").strip()
+    if title:
+        return title
+    for line in body.splitlines():
+        if line.startswith("#"):
+            return line.lstrip("#").strip()
+    return source.stem.replace("_", " ").title()
 
 
 
