@@ -32,3 +32,9 @@ def test_parse_frontmatter_continuation(tmp_path: Path) -> None:
     fm, body = mdhtml.parse_frontmatter(text, src)
     assert fm["summary"] == "first line\n second line"
     assert body == "X"
+
+def test_parse_frontmatter_invalid_line(tmp_path: Path) -> None:
+    src = tmp_path / "a.md"
+    text = "---\nno colon line\n---\n"
+    with pytest.raises(ValueError, match="invalid frontmatter"):
+        mdhtml.parse_frontmatter(text, src)
