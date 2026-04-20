@@ -73,3 +73,13 @@ def test_is_hidden_path_dot_prefix(tmp_path: Path) -> None:
     assert is_hidden_path(tmp_path / ".env") is True
     assert is_hidden_path(tmp_path / "visible.txt") is False
 
+@pytest.mark.skipif(sys.platform != "win32", reason="Windows file attribute hidden flag")
+def test_is_hidden_path_windows_hidden_attribute(tmp_path: Path) -> None:
+    import ctypes
+
+    path = tmp_path / "hidden.txt"
+    path.write_text("x", encoding="utf-8")
+    FILE_ATTRIBUTE_HIDDEN = 0x2
+    ok = ctypes.windll.kernel32.SetFileAttributesW(str(path), FILE_ATTRIBUTE_HIDDEN)
+    assert ok, "SetFileAttributesW should succeed for test file"
+    assert is_hidden_path(path) is True
