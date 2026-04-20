@@ -32,3 +32,6 @@ def get_briefings_dir() -> Path:
 
 def get_briefing_history_file() -> Path:
     return get_briefings_dir() / "briefing_history.json"
+
+def get_time_dir() -> Path:
+    return get_home_dir() / "time"
