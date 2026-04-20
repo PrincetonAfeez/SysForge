@@ -65,3 +65,6 @@ def test_human_size_and_format_duration() -> None:
     assert format_duration(3661).startswith("1h")
     assert format_duration(59) == "0h 00m"
 
+def test_get_nested_value_missing() -> None:
+    with pytest.raises(KeyError):
+        get_nested_value({}, "missing.key")
