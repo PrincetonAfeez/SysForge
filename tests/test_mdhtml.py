@@ -25,3 +25,10 @@ def test_parse_frontmatter_skips_blank_and_comments(tmp_path: Path) -> None:
     assert fm["title"] == "Quoted"
     assert body == "OK"
 
+
+def test_parse_frontmatter_continuation(tmp_path: Path) -> None:
+    src = tmp_path / "a.md"
+    text = "---\nsummary: first line\n second line\n---\nX\n"
+    fm, body = mdhtml.parse_frontmatter(text, src)
+    assert fm["summary"] == "first line\n second line"
+    assert body == "X"
