@@ -6,3 +6,8 @@ from pathlib import Path
 
 PACKAGE_ROOT = Path(__file__).resolve().parent
 
+def get_home_dir() -> Path:
+    override = os.environ.get("SYSFORGE_HOME")
+    if override:
+        return Path(override).expanduser()
+    return Path.home() / ".sysforge"
