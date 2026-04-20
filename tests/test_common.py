@@ -22,3 +22,7 @@ def test_load_json_file_missing_no_default(tmp_path: Path) -> None:
     with pytest.raises(FileNotFoundError):
         load_json_file(missing)
 
+def test_load_json_file_missing_with_default(tmp_path: Path) -> None:
+    missing = tmp_path / "nope.json"
+    assert load_json_file(missing, default={"k": 1}) == {"k": 1}
+
