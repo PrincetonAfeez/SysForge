@@ -30,4 +30,15 @@ def test_choose_destination_rename_on_conflict(tmp_path: Path) -> None:
     assert dest.name.startswith("file_")
     assert action == "rename"
 
+def test_resolve_relative_folder_size_buckets_sorted(tmp_path: Path) -> None:
+    half_mb = tmp_path / "half.bin"
+    half_mb.write_bytes(b"0" * (512 * 1024))
+    rules = {"size_buckets": {"large": {"max_mb": None}, "small": {"max_mb": 1}}}
+    assert resolve_relative_folder(half_mb, "size", rules) == Path("Small")
+
+    big = tmp_path / "big.bin"
+    big.write_bytes(b"1" * (2 * 1024 * 1024))
+    assert resolve_relative_folder(big, "size", rules) == Path("Large")
+
+
 
