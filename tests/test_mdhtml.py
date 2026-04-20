@@ -86,3 +86,10 @@ def test_render_template_order_preserves_body_literals(
     )
     assert "BODY_{{theme_css}}_END" in html
     assert "THEME" in html and "PYG" in html
+
+
+def test_guess_title_ignores_blank_frontmatter_title(tmp_path: Path) -> None:
+    src = tmp_path / "my_file.md"
+    fm = {"title": "   "}
+    body = "# Real\n"
+    assert mdhtml.guess_title(fm, body, src) == "Real"
