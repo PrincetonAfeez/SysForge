@@ -147,6 +147,27 @@ def choose_destination(
         counter += 1
 
 
+def perform_move(source: Path, destination: Path, action: str, dry_run: bool) -> Path:
+    if dry_run:
+        return destination
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    if action == "overwrite" and destination.exists():
+        destination.unlink()
+    try:
+        shutil.move(str(source), str(destination))
+        return destination
+    except FileExistsError:
+        if action != "move":
+            raise
+        stem = destination.stem
+        suffix = destination.suffix
+        counter = 1
+        renamed = destination
+        while renamed.exists():
+            renamed = destination.parent / f"{stem}_{counter}{suffix}"
+            counter += 1
+        shutil.move(str(source), str(renamed))
+        return renamed
 
 
 
