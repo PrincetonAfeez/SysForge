@@ -23,3 +23,7 @@ def get_organizer_log_dir() -> Path:
 
 def get_docs_dir() -> Path:
     return get_home_dir() / "docs"
+
+def get_docs_history_file() -> Path:
+    return get_docs_dir() / "build_history.json"
+
