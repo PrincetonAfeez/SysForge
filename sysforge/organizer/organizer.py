@@ -56,6 +56,17 @@ def _ordered_size_bucket_entries(
     parsed.sort(key=sort_key)
     return parsed
 
+def load_rules(rules_path: Path | None, config_path: Path | None = None) -> dict[str, Any]:
+    config = load_shared_config(config_path)
+    if rules_path is None:
+        raw_rules = config.get("organizer", {}).get("rules_file", "")
+        if raw_rules:
+            rules_path = Path(raw_rules)
+        else:
+            rules_path = get_default_organizer_rules_path()
+    return cast(dict[str, Any], load_json_file(rules_path, default={}))
+
+
 
 
 
