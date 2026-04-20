@@ -169,6 +169,10 @@ def perform_move(source: Path, destination: Path, action: str, dry_run: bool) ->
         shutil.move(str(source), str(renamed))
         return renamed
 
+def build_log_path(prefix: str = "organizer") -> Path:
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    return get_organizer_log_dir() / f"{prefix}_{timestamp}.json"
+
 
 
 
