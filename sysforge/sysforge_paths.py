@@ -29,3 +29,6 @@ def get_docs_history_file() -> Path:
 
 def get_briefings_dir() -> Path:
     return get_home_dir() / "briefings"
+
+def get_briefing_history_file() -> Path:
+    return get_briefings_dir() / "briefing_history.json"
