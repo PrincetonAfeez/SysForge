@@ -33,6 +33,29 @@ def _normalize_log_path(path: Path) -> str:
         return str(path)
 
 
+def _ordered_size_bucket_entries(
+    buckets: dict[str, Any],
+) -> list[tuple[str, float | None]]:
+    parsed: list[tuple[str, float | None]] = []
+    for bucket_name, bucket_data in buckets.items():
+        raw = bucket_data.get("max_mb")
+        if raw is None:
+            parsed.append((bucket_name, None))
+            continue
+        try:
+            parsed.append((bucket_name, float(raw)))
+        except (TypeError, ValueError):
+            parsed.append((bucket_name, float("inf")))
+
+    def sort_key(entry: tuple[str, float | None]) -> tuple[int, float, str]:
+        name, max_mb = entry
+        if max_mb is None:
+            return (1, float("inf"), name)
+        return (0, max_mb, name)
+
+    parsed.sort(key=sort_key)
+    return parsed
+
 
 
 
