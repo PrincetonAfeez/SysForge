@@ -273,6 +273,41 @@ def build_site(
     built_files: list[dict[str, Any]] = []
     errors: list[str] = []
 
+    if source.is_file(): 
+        destination = output if output.suffix.lower() == ".html" else output / f"{source.stem}.html"
+        try:
+            built_files.append(
+                convert_markdown_file(
+                    source,
+                    destination,
+                    theme_name=theme_name,
+                    template_path=template_path,
+                )
+            )
+        except BaseException as exc:
+            if isinstance(exc, (KeyboardInterrupt, SystemExit)):
+                raise
+            errors.append(str(exc))
+    else:
+        markdown_files = collect_markdown_files(source)
+        for markdown_file in markdown_files:
+            relative_path = markdown_file.relative_to(source).with_suffix(".html")
+            destination = output / relative_path
+            try:
+                built_files.append(
+                    convert_markdown_file(
+                        markdown_file,
+                        destination,
+                        theme_name=theme_name,
+                        template_path=template_path,
+                    )
+                )
+            except BaseException as exc:
+                if isinstance(exc, (KeyboardInterrupt, SystemExit)):
+                    raise
+                errors.append(str(exc))
+        build_index_page(output, built_files, theme_name, template_path)
+
 
 
 
