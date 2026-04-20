@@ -42,6 +42,12 @@ def _parse_markdown_image_target(raw: str) -> str | None:
     inner = inner.strip("\"'")
     return inner or None
 
+def _replace_placeholder_once(template: str, key: str, value: str) -> str:
+    marker = f"{{{{{key}}}}}"
+    if marker not in template:
+        raise ValueError(f"Template is missing placeholder: {marker}")
+    before, sep, after = template.partition(marker)
+    return before + value + after
 
 
 
