@@ -117,3 +117,12 @@ def get_nested_value(data: dict[str, Any], dotted_key: str) -> Any:
             raise KeyError(dotted_key)
         current = current[part]
     return current
+
+def set_nested_value(data: dict[str, Any], dotted_key: str, value: Any) -> None:
+    current = data
+    parts = dotted_key.split(".")
+    for part in parts[:-1]:
+        current = current.setdefault(part, {})
+        if not isinstance(current, dict):
+            raise ValueError(f"Cannot set nested value under non-object key: {part}")
+    current[parts[-1]] = value
