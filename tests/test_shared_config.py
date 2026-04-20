@@ -13,3 +13,5 @@ def test_deep_merge_nested_dicts() -> None:
         "nested": {"x": 1, "y": 9, "z": 3},
     }
 
+def test_deep_merge_replaces_non_dict_values() -> None:
+    assert deep_merge({"a": {"b": 1}}, {"a": 2}) == {"a": 2}
