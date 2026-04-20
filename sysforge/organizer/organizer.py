@@ -264,6 +264,13 @@ def run_organizer(
     }
 
 
+def find_latest_real_log() -> Path | None:
+    log_files = sorted(get_organizer_log_dir().glob("organizer_*.json"), reverse=True)
+    for log_file in log_files:
+        payload = load_json_file(log_file, default={})
+        if not payload.get("dry_run", False):
+            return log_file
+    return None
 
 
 
