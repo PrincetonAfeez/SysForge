@@ -1,0 +1,37 @@
+# Byte-compiled / caches
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Virtual environments
+.venv/
+venv/
+ENV/
+
+# Packaging / editable installs
+*.egg-info/
+*.egg
+dist/
+build/
+
+# Coverage reports
+.coverage
+.coverage.*
+htmlcov/
+
+# Local dev state (optional override)
+.sysforge-dev/
+
+# Environment / secrets
+.env
+.env.*
+!.env.example
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
