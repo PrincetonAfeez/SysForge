@@ -133,6 +133,12 @@ def load_template(template_path: Path | None) -> str:
         template_path = get_markdown_template_path()
     return template_path.read_text(encoding="utf-8")
 
+def load_theme_css(theme_name: str) -> str:
+    theme_path = get_theme_path(theme_name)
+    if not theme_path.exists():
+        print_error(f"Theme not found: {theme_name}")
+    return theme_path.read_text(encoding="utf-8")
+
 
 
 
