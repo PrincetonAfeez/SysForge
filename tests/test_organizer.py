@@ -11,3 +11,8 @@ from sysforge.organizer.organizer import (
     run_organizer,
 )
 
+def test_resolve_relative_folder_extension() -> None:
+    rules = {"extension_categories": {".txt": "Text"}}
+    folder = resolve_relative_folder(Path("notes.txt"), "extension", rules)
+    assert folder == Path("Text")
+
