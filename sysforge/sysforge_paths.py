@@ -42,3 +42,7 @@ def get_timesheet_file() -> Path:
 
 def get_health_dir() -> Path:
     return get_home_dir() / "health"
+
+
+def get_health_log_file() -> Path:
+    return get_health_dir() / "health_log.jsonl"
