@@ -65,3 +65,24 @@ def test_index_href_for_output_relative(tmp_path: Path) -> None:
     f.write_text("x", encoding="utf-8")
     href = mdhtml._index_href_for_output(f, out)
     assert href.replace("\\", "/") == "sub/a.html"
+
+def test_render_template_order_preserves_body_literals(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    tpl = tmp_path / "t.html"
+    tpl.write_text(
+        "T={{theme_css}}|P={{pygments_css}}|TI={{title}}|G={{generated_at}}|C={{content}}",
+        encoding="utf-8",
+    )
+    monkeypatch.setattr(mdhtml, "load_theme_css", lambda _name: "THEME")
+    monkeypatch.setattr(mdhtml, "build_pygments_css", lambda: "PYG")
+
+    html = mdhtml.render_html_document(
+        "BODY_{{theme_css}}_END",
+        title="T",
+        generated_at="G",
+        template_path=tpl,
+        theme_name="light",
+    )
+    assert "BODY_{{theme_css}}_END" in html
+    assert "THEME" in html and "PYG" in html
