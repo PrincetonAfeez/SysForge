@@ -58,3 +58,6 @@ def get_backups_dir() -> Path:
 
 def get_user_config_path() -> Path:
     return get_home_dir() / "sysforge.json"
+
+def get_default_config_path() -> Path:
+    return PACKAGE_ROOT / "data" / "sysforge.json"
