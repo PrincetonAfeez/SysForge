@@ -77,6 +77,12 @@ def load_markdown_dependency() -> Any:
         )
 
 
+def load_pygments_formatter() -> Any:
+    try:
+        pygments_module = importlib.import_module("pygments.formatters")
+        return pygments_module.HtmlFormatter
+    except ModuleNotFoundError:
+        print_error("Pygments is not installed. Run `pip install -e .` first.", exit_code=2)
 
 
 
