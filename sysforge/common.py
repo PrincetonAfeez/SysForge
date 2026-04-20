@@ -180,3 +180,6 @@ def parse_local_datetime(raw_value: str, timezone_name: str | None = None) -> da
         parsed = parsed.replace(tzinfo=timezone)
     return parsed
 
+def print_error(message: str, exit_code: int = 1) -> NoReturn:
+    typer.secho(message, fg=typer.colors.RED, err=True)
+    raise typer.Exit(code=exit_code)
