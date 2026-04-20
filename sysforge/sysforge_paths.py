@@ -64,3 +64,6 @@ def get_default_config_path() -> Path:
 
 def get_default_schema_path() -> Path:
     return PACKAGE_ROOT / "data" / "sysforge.schema.json"
+
+def get_default_organizer_rules_path() -> Path:
+    return PACKAGE_ROOT / "data" / "default_organizer_rules.json"
