@@ -56,3 +56,10 @@ def append_json_line(path: Path, payload: dict[str, Any]) -> None:
         handle.write(json.dumps(payload, ensure_ascii=True))
         handle.write("\n")
 
+def append_csv_rows(path: Path, rows: list[dict[str, Any]], fieldnames: list[str]) -> None:
+    ensure_parent(path)
+    with path.open("w", encoding="utf-8", newline="") as handle:
+        writer = csv.DictWriter(handle, fieldnames=fieldnames)
+        writer.writeheader()
+        writer.writerows(rows)
+
