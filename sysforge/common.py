@@ -63,3 +63,25 @@ def append_csv_rows(path: Path, rows: list[dict[str, Any]], fieldnames: list[str
         writer.writeheader()
         writer.writerows(rows)
 
+def is_hidden_path(path: Path) -> bool:
+    if path.name.startswith("."):
+        return True
+    if sys.platform != "win32":
+        return False
+    hidden_flag = getattr(stat, "FILE_ATTRIBUTE_HIDDEN", 2)
+    try:
+        st = path.stat(follow_symlinks=False)
+    except OSError:
+        return False
+    attrs = getattr(st, "st_file_attributes", None)
+    if attrs is not None:
+        return bool(attrs & hidden_flag)
+    kernel32 = ctypes.windll.kernel32  # type: ignore[attr-defined]
+    get_attrs = kernel32.GetFileAttributesW
+    get_attrs.argtypes = [wintypes.LPCWSTR]
+    get_attrs.restype = wintypes.DWORD
+    raw = get_attrs(os.fsdecode(path))
+    invalid = 0xFFFFFFFF
+    if raw == invalid:
+        return False
+    return bool(raw & hidden_flag)
