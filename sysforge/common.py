@@ -154,3 +154,29 @@ def parse_cli_value(raw_value: str) -> Any:
 
     return raw_value
 
+def parse_local_datetime(raw_value: str, timezone_name: str | None = None) -> datetime:
+    from zoneinfo import ZoneInfo
+
+    timezone = None
+    if timezone_name:
+        timezone = ZoneInfo(timezone_name)
+
+    formats = [
+        "%Y-%m-%d %H:%M",
+        "%Y-%m-%d %H:%M:%S",
+        "%Y-%m-%dT%H:%M",
+        "%Y-%m-%dT%H:%M:%S",
+    ]
+
+    for fmt in formats:
+        try:
+            parsed = datetime.strptime(raw_value, fmt)
+            return parsed.replace(tzinfo=timezone)
+        except ValueError:
+            continue
+
+    parsed = datetime.fromisoformat(raw_value)
+    if parsed.tzinfo is None and timezone is not None:
+        parsed = parsed.replace(tzinfo=timezone)
+    return parsed
+
