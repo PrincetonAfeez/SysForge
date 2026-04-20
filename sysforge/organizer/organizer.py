@@ -119,6 +119,32 @@ def resolve_relative_folder(path: Path, mode: str, rules: dict[str, Any]) -> Pat
     raise ValueError(f"Unknown mode: {mode}")
 
 
+def choose_destination(
+    source: Path, base_dir: Path, relative_folder: Path, conflict_mode: str
+) -> tuple[Path | None, str]:
+    destination_dir = base_dir / relative_folder
+    destination = destination_dir / source.name
+
+    if destination == source:
+        return None, "skip"
+
+    if not destination.exists():
+        return destination, "move"
+
+    if conflict_mode == "skip":
+        return None, "skip"
+
+    if conflict_mode == "overwrite":
+        return destination, "overwrite"
+
+    stem = destination.stem
+    suffix = destination.suffix
+    counter = 1
+    while True:
+        renamed = destination_dir / f"{stem}_{counter}{suffix}"
+        if not renamed.exists():
+            return renamed, "rename"
+        counter += 1
 
 
 
