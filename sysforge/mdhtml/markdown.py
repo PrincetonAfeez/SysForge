@@ -226,6 +226,30 @@ def _index_href_for_output(output_file: Path, output_dir: Path) -> str:
     except ValueError:
         return Path(os.path.relpath(str(out_abs), str(base_abs))).as_posix()
 
+def build_index_page(
+    output_dir: Path,
+    items: list[dict[str, Any]],
+    theme_name: str,
+    template_path: Path | None,
+) -> None:
+    sorted_items = sorted(items, key=lambda item: item.get("date", ""), reverse=True)
+    lines = ["<h2>Generated Pages</h2>", "<ul>"]
+    for item in sorted_items:
+        href = _index_href_for_output(Path(item["output"]), output_dir)
+        date_text = item.get("date") or "No date"
+        title = str(item.get("title", ""))
+        link = f'<a href="{escape(href, quote=True)}">{escape(title)}</a>'
+        lines.append(f"<li>{link} - {escape(str(date_text))}</li>")
+    lines.append("</ul>")
+    document = render_html_document(
+        "\n".join(lines),
+        title="SysForge Static Site",
+        generated_at=datetime.now().isoformat(timespec="seconds"),
+        template_path=template_path,
+        theme_name=theme_name,
+    )
+    write_text_file(output_dir / "index.html", document)
+
 
 
 
