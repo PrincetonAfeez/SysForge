@@ -161,6 +161,22 @@ def render_html_document(
         content=body_html,
     )
 
+def copy_relative_images(source_file: Path, destination_file: Path, markdown_text: str) -> None:
+    for raw in IMAGE_PATTERN.findall(markdown_text):
+        raw_path = _parse_markdown_image_target(raw)
+        if raw_path is None:
+            continue
+        if raw_path.startswith("http://") or raw_path.startswith("https://"):
+            continue
+
+        image_source = (source_file.parent / raw_path).resolve()
+        if not image_source.exists() or not image_source.is_file():
+            continue
+
+        image_destination = destination_file.parent / raw_path
+        image_destination.parent.mkdir(parents=True, exist_ok=True)
+        image_destination.write_bytes(image_source.read_bytes())
+
 
 
 
