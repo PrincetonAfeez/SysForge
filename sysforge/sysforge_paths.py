@@ -20,3 +20,6 @@ def get_central_log_file() -> Path:
 
 def get_organizer_log_dir() -> Path:
     return get_home_dir() / "organizer" / "logs"
+
+def get_docs_dir() -> Path:
+    return get_home_dir() / "docs"
