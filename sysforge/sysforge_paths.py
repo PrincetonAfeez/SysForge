@@ -73,3 +73,6 @@ def get_markdown_template_path() -> Path:
 
 def get_theme_path(theme_name: str) -> Path:
     return PACKAGE_ROOT / "mdhtml" / "themes" / f"{theme_name}.css"
+
+def get_briefing_data_dir() -> Path:
+    return PACKAGE_ROOT / "briefing" / "data"
