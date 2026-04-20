@@ -90,6 +90,33 @@ def iter_candidate_files(
     return files, messages
 
 
+def resolve_relative_folder(path: Path, mode: str, rules: dict[str, Any]) -> Path:
+    if mode == "extension":
+        extension_map = rules.get("extension_categories", {})
+        suffix = path.suffix.lower()
+        if suffix == "":
+            if "" in extension_map:
+                category = extension_map[""]
+            else:
+                category = rules.get("extension_no_suffix_category", "Other")
+        else:
+            category = extension_map.get(suffix, "Other")
+        return Path(str(category))
+
+    if mode == "date":
+        modified_at = datetime.fromtimestamp(path.stat().st_mtime)
+        date_format = rules.get("date_format", "%Y/%m")
+        return Path(modified_at.strftime(date_format))
+
+    if mode == "size":
+        size_in_mb = path.stat().st_size / (1024 * 1024)
+        buckets = rules.get("size_buckets", {})
+        for bucket_name, max_mb in _ordered_size_bucket_entries(buckets):
+            if max_mb is None or size_in_mb <= max_mb:
+                return Path(bucket_name.title())
+        return Path("Large")
+
+    raise ValueError(f"Unknown mode: {mode}")
 
 
 
