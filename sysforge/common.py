@@ -99,3 +99,14 @@ def format_duration(duration_seconds: int) -> str:
     hours, remainder = divmod(max(duration_seconds, 0), 3600)
     minutes, _ = divmod(remainder, 60)
     return f"{hours}h {minutes:02d}m"
+
+def flatten_dict(data: dict[str, Any], prefix: str = "") -> dict[str, Any]:
+    flattened: dict[str, Any] = {}
+    for key, value in data.items():
+        dotted = f"{prefix}.{key}" if prefix else key
+        if isinstance(value, dict):
+            flattened.update(flatten_dict(value, dotted))
+        else:
+            flattened[dotted] = value
+    return flattened
+
