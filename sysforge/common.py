@@ -110,3 +110,10 @@ def flatten_dict(data: dict[str, Any], prefix: str = "") -> dict[str, Any]:
             flattened[dotted] = value
     return flattened
 
+def get_nested_value(data: dict[str, Any], dotted_key: str) -> Any:
+    current: Any = data
+    for part in dotted_key.split("."):
+        if not isinstance(current, dict) or part not in current:
+            raise KeyError(dotted_key)
+        current = current[part]
+    return current
