@@ -350,6 +350,15 @@ def undo_last_run() -> tuple[Path, dict[str, int]]:
     logger.info("Undo completed for %s", log_path)
     return undo_log_path, {"restored": restored, "skipped": skipped, "errors": errors}
 
+def print_summary(result: dict[str, Any]) -> None:
+    summary = result["summary"]
+    typer.echo("")
+    typer.echo("Organizer summary")
+    typer.echo(f"Moved: {summary['moved']}")
+    typer.echo(f"Skipped: {summary['skipped']}")
+    typer.echo(f"Errors: {summary['errors']}")
+    typer.echo(f"Total size processed: {human_size(summary['total_size_processed'])}")
+    typer.echo(f"Log file: {result['log_path']}")
 
 
 
