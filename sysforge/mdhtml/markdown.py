@@ -84,6 +84,11 @@ def load_pygments_formatter() -> Any:
     except ModuleNotFoundError:
         print_error("Pygments is not installed. Run `pip install -e .` first.", exit_code=2)
 
+def _strip_optional_quotes(value: str) -> str:
+    value = value.strip()
+    if len(value) >= 2 and value[0] == value[-1] and value[0] in {"'", '"'}:
+        return value[1:-1]
+    return value
 
 
 
