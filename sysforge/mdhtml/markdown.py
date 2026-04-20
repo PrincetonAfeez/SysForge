@@ -49,6 +49,24 @@ def _replace_placeholder_once(template: str, key: str, value: str) -> str:
     before, sep, after = template.partition(marker)
     return before + value + after
 
+def _apply_html_template(
+    template: str,
+    *,
+    theme_css: str,
+    pygments_css: str,
+    title: str,
+    generated_at: str,
+    content: str,
+) -> str:
+
+    result = template
+    result = _replace_placeholder_once(result, "theme_css", theme_css)
+    result = _replace_placeholder_once(result, "pygments_css", pygments_css)
+    result = _replace_placeholder_once(result, "title", title)
+    result = _replace_placeholder_once(result, "generated_at", generated_at)
+    result = _replace_placeholder_once(result, "content", content)
+    return result
+
 
 
 
