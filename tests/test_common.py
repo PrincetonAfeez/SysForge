@@ -54,3 +54,9 @@ def test_flatten_and_nested_roundtrip() -> None:
     assert get_nested_value(data, "app.db.host") == "localhost"
     set_nested_value(data, "app.db.port", 5432)
     assert data["app"]["db"]["port"] == 5432
+
+def test_set_nested_value_rejects_non_object_path() -> None:
+    data: dict = {"a": "scalar"}
+    with pytest.raises(ValueError):
+        set_nested_value(data, "a.b", 1)
+
