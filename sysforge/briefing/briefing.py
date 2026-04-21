@@ -54,3 +54,8 @@ _ALLOWED_BRIEFING_CONFIG_KEYS = frozenset(
         "output_dir",
     }
 )
+
+
+def _sanitize_single_line(text: str) -> str:
+    cleaned = "".join(ch if ch.isprintable() or ch in "\t" else " " for ch in text)
+    return " ".join(cleaned.split())
