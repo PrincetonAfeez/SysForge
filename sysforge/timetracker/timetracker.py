@@ -1,3 +1,5 @@
+""" Time tracker for SysForge."""
+
 from __future__ import annotations
 
 import secrets
@@ -446,26 +448,6 @@ def delete(
     data["entries"] = [entry for entry in entries if str(entry.get("id", "")) != entry_id]
     save_timesheet(data)
     typer.echo(f"Deleted entry {entry_id}")
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 def main() -> None:
     app()
