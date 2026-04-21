@@ -333,6 +333,24 @@ def status() -> None:
         typer.echo("Warning: this timer has been running for more than 8 hours.")
 
 
+@app.command()
+def log() -> None:
+    entries = todays_entries(load_timesheet().get("entries", []))
+    if not entries:
+        typer.echo("No entries for today.")
+        return
+
+    for entry in entries:
+        try:
+            start_time = datetime.fromisoformat(str(entry.get("start_time", ""))).strftime("%H:%M")
+            end_time = datetime.fromisoformat(str(entry.get("end_time", ""))).strftime("%H:%M")
+        except ValueError:
+            continue
+        duration = int(entry.get("duration_seconds", 0) or 0)
+        typer.echo(
+            f"{entry.get('id', '')} | {entry.get('task', '')} | {start_time}-{end_time} | "
+            f"{format_duration(duration)} | {entry.get('project', '')} | {entry.get('tag', '')}"
+        )
 
 
 
