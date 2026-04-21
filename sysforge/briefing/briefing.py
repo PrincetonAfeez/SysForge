@@ -201,3 +201,8 @@ def greeting_for_hour(hour: int, name: str) -> str:
         return f"Good afternoon, {name}"
     return f"Good evening, {name}"
 
+def pick_weather(weather_data: dict[str, Any], day_key: str) -> dict[str, Any]:
+    return cast(
+        dict[str, Any],
+        weather_data.get("days", {}).get(day_key, weather_data.get("default", {})),
+    )
