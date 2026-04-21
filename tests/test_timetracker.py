@@ -17,3 +17,8 @@ MIN_CONFIG = {
 }
 
 
+
+@pytest.fixture
+def tt_config(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr(tt, "load_shared_config", lambda: MIN_CONFIG)
+
