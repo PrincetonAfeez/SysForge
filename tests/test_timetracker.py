@@ -139,3 +139,34 @@ def test_report_lines_tolerates_sparse_entries(tt_config: None) -> None:
         ]
     )
     assert any("Billable total" in line for line in lines)
+
+def test_load_save_roundtrip(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, tt_config: None
+) -> None:
+    sheet = tmp_path / "timesheet.json"
+    monkeypatch.setattr(tt, "get_timesheet_file", lambda: sheet)
+    monkeypatch.setattr(tt, "ensure_home_layout", lambda: None)
+
+    initial = {
+        "active_timer": None,
+        "entries": [
+            {
+                "id": "e1",
+                "task": "Task",
+                "start_time": "2026-01-01T10:00:00",
+                "end_time": "2026-01-01T11:00:00",
+                "duration_seconds": 3600,
+                "billable_rate": 0,
+                "billable_total": 0,
+                "project": "P",
+                "tag": "g",
+            }
+        ],
+    }
+    sheet.write_text(json.dumps(initial), encoding="utf-8")
+    data = tt.load_timesheet()
+    assert data["entries"][0]["start_time"].endswith("+00:00")
+    tt.save_timesheet(data)
+    roundtrip = json.loads(sheet.read_text(encoding="utf-8"))
+    assert len(roundtrip["entries"]) == 1
+    assert "updated_at" in roundtrip
