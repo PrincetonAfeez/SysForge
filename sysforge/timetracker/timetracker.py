@@ -201,6 +201,21 @@ def _entry_start_datetime(entry: dict[str, Any], tz: tzinfo) -> datetime | None:
         return parsed.replace(tzinfo=tz)
     return parsed.astimezone(tz)
 
+def period_entries(entries: list[dict[str, Any]], period: str) -> list[dict[str, Any]]:
+    now = now_in_timezone()
+    if period == "month":
+        start = now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+    else:
+        start = now - timedelta(days=7)
+    tz = now.tzinfo or ZoneInfo("UTC")
+    filtered: list[dict[str, Any]] = []
+    for entry in entries:
+        parsed_start = _entry_start_datetime(entry, tz)
+        if parsed_start is None:
+            continue
+        if parsed_start >= start:
+            filtered.append(entry)
+    return filtered
 
 
 
