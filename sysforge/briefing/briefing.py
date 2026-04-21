@@ -33,3 +33,24 @@ app = typer.Typer(help="Build a daily personal briefing file.")
 logger = get_logger("sysforge.briefing")
 
 
+def _zoned_now(tz: tzinfo) -> datetime:
+    return datetime.now(tz)
+
+
+_DEFAULT_DATA_FILENAMES = {
+    "weather_file": "weather.json",
+    "quotes_file": "quotes.json",
+    "calendar_file": "calendar.json",
+}
+
+_ALLOWED_BRIEFING_CONFIG_KEYS = frozenset(
+    {
+        "name",
+        "timezone",
+        "temperature_unit",
+        "weather_file",
+        "quotes_file",
+        "calendar_file",
+        "output_dir",
+    }
+)
