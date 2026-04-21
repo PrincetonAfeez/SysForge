@@ -516,3 +516,11 @@ def briefing(
     except ValueError as exc:
         print_error(str(exc))
     typer.echo(f"Briefing written to {output_file}")
+
+
+def main() -> None:
+    app()
+
+
+if __name__ == "__main__":
+    main()
