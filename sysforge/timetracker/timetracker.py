@@ -368,6 +368,41 @@ def report(
     for line in report_lines(entries):
         typer.echo(line)
 
+@app.command()
+def export(
+    csv: Path = typer.Option(..., "--csv", help="CSV file path"),
+) -> None:
+    entries = load_timesheet().get("entries", [])
+    rows = [
+        {
+            "id": entry.get("id", ""),
+            "task": entry.get("task", ""),
+            "project": entry.get("project", ""),
+            "tag": entry.get("tag", ""),
+            "start_time": entry.get("start_time", ""),
+            "end_time": entry.get("end_time", ""),
+            "duration_seconds": entry.get("duration_seconds", 0),
+            "billable_rate": entry.get("billable_rate", 0.0),
+            "billable_total": entry.get("billable_total", 0.0),
+        }
+        for entry in entries
+    ]
+    append_csv_rows(
+        csv,
+        rows,
+        [
+            "id",
+            "task",
+            "project",
+            "tag",
+            "start_time",
+            "end_time",
+            "duration_seconds",
+            "billable_rate",
+            "billable_total",
+        ],
+    )
+    typer.echo(f"Exported {len(rows)} entries to {csv}")
 
 
 
