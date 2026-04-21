@@ -24,6 +24,11 @@ app = typer.Typer(help="Track work sessions and export time reports.")
 logger = get_logger("sysforge.timetracker")
 
 
+def active_timezone() -> str:
+    config = load_shared_config()
+    raw = config.get("user", {}).get("timezone", "UTC")
+    return raw if isinstance(raw, str) else "UTC"
+
 
 
 
