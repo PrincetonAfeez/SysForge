@@ -32,6 +32,10 @@ def active_timezone() -> str:
 def now_in_timezone() -> datetime:
     return datetime.now(ZoneInfo(active_timezone()))
 
+def load_timesheet() -> dict[str, Any]:
+    ensure_home_layout()
+    raw = load_json_file(get_timesheet_file(), default={"active_timer": None, "entries": []})
+    return normalize_timesheet_payload(raw)
 
 
 
