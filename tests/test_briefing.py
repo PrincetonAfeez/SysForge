@@ -106,3 +106,24 @@ def test_normalize_calendar_skips_bad_rows() -> None:
     out = briefing_mod._normalize_calendar_payload(raw)
     assert len(out) == 1 and out[0]["title"] == "Ok"
 
+def test_markdown_quote_wraps_long_paragraph() -> None:
+    now = datetime(2026, 1, 1, 12, 0, tzinfo=ZoneInfo("UTC"))
+    snap = {
+        "os": "os",
+        "python_version": "3.14",
+        "uptime": "0h 00m",
+        "free_disk": 1024**3,
+        "disk_root": "/tmp",
+    }
+    long_quote = "word " * 40
+    md = briefing_mod.build_markdown_briefing(
+        greeting="Hi",
+        now=now,
+        weather=None,
+        quote=long_quote,
+        calendar_items=None,
+        system_snapshot=snap,
+    )
+    assert md.count("> ") >= 2
+    assert "## Quote" in md
+
