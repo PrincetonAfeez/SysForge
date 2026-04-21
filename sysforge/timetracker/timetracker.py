@@ -185,6 +185,10 @@ def parse_entry_datetime(value: str) -> datetime:
     return parse_local_datetime(value, active_timezone())
 
 
+def todays_entries(entries: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    today_key = now_in_timezone().date().isoformat()
+    return [entry for entry in entries if entry.get("start_time", "").startswith(today_key)]
+
 
 
 
