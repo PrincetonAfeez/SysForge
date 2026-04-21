@@ -404,6 +404,28 @@ def export(
     )
     typer.echo(f"Exported {len(rows)} entries to {csv}")
 
+@app.command()
+def add(
+    task: str = typer.Argument(..., help="Task name"),
+    start: str = typer.Option(..., "--start", help="Start time like 2026-04-19 09:00"),
+    end: str = typer.Option(..., "--end", help="End time like 2026-04-19 10:30"),
+    project: str | None = typer.Option(None, "--project", help="Optional project name"),
+    tag: str | None = typer.Option(None, "--tag", help="Optional tag"),
+) -> None:
+    start_time = parse_entry_datetime(start)
+    end_time = parse_entry_datetime(end)
+    if end_time <= start_time:
+        print_error("--end must be after --start.")
+
+    data = load_timesheet()
+    entry = build_entry(
+        task=task, start_time=start_time, end_time=end_time, project=project, tag=tag
+    )
+    data.setdefault("entries", []).append(entry)
+    save_timesheet(data)
+    typer.echo(f"Added entry {entry['id']}")
+
+
 
 
 
