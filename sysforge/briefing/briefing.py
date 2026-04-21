@@ -124,3 +124,24 @@ def _normalize_calendar_payload(data: Any) -> list[dict[str, Any]]:
             }
         )
     return items
+
+
+def _markdown_quote_block(quote: str, wrap_width: int = 88) -> list[str]:
+    quote = quote.strip()
+    if not quote:
+        return ["> _(empty quote)_", ""]
+    paragraphs = [p.strip() for p in quote.split("\n\n") if p.strip()]
+    lines_out: list[str] = []
+    for para in paragraphs:
+        wrapped = textwrap.wrap(
+            para, width=wrap_width, break_long_words=True, break_on_hyphens=True
+        )
+        if not wrapped:
+            wrapped = [para]
+        for segment in wrapped:
+            lines_out.append(f"> {segment}")
+        lines_out.append(">")
+    while lines_out and lines_out[-1].strip() == ">":
+        lines_out.pop()
+    return lines_out
+
