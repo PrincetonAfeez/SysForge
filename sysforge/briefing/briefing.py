@@ -256,3 +256,23 @@ def get_system_snapshot(disk_root: Path | None = None) -> dict[str, Any]:
         "free_disk": free_disk,
         "disk_root": str(root),
     }
+
+def _format_temperature_value(value: Any, unit: str) -> str:
+    if value is None or value == "n/a":
+        return "n/a"
+    try:
+        fahrenheit = float(value)
+    except (TypeError, ValueError):
+        return _sanitize_single_line(str(value))
+    unit_u = unit.upper()
+    if unit_u == "C":
+        celsius = (fahrenheit - 32.0) * 5.0 / 9.0
+        text = f"{celsius:.1f}".rstrip("0").rstrip(".")
+        return text or "0"
+    text = f"{fahrenheit:.1f}".rstrip("0").rstrip(".") if fahrenheit % 1 else str(int(fahrenheit))
+    return text
+
+
+def _temperature_unit_label(unit: str) -> str:
+    return "C" if unit.upper() == "C" else "F"
+
