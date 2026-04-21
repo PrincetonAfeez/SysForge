@@ -247,6 +247,37 @@ def report_lines(entries: list[dict[str, Any]]) -> list[str]:
     lines.append(f"Billable total: ${billable_total:.2f}")
     return lines
 
+@app.command()
+def start(
+    task: str = typer.Argument(..., help="Task name"),
+    project: str | None = typer.Option(None, "--project", help="Optional project name"),
+    tag: str | None = typer.Option(None, "--tag", help="Optional tag"),
+) -> None:
+    data = load_timesheet()
+    if data.get("active_timer"):
+        print_error("A timer is already running. Stop it before starting a new one.")
+
+    timer = {
+        "task": task,
+        "project": project or "Unassigned",
+        "tag": tag or "general",
+        "start_time": now_in_timezone().isoformat(),
+    }
+    data["active_timer"] = timer
+    save_timesheet(data)
+    logger.info("Started timer for %s", task)
+    typer.echo(f"Started timer: {task}")
+
+
+
+
+
+
+
+
+
+
+
 
 
 
