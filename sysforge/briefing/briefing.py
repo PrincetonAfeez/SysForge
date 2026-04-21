@@ -206,3 +206,11 @@ def pick_weather(weather_data: dict[str, Any], day_key: str) -> dict[str, Any]:
         dict[str, Any],
         weather_data.get("days", {}).get(day_key, weather_data.get("default", {})),
     )
+
+def pick_quote(quotes: list[str]) -> str:
+    if not quotes:
+        return "No quote available today."
+    raw = random.choice(quotes)
+    cleaned = _sanitize_quote_text(str(raw))
+    return cleaned or "No quote available today."
+
