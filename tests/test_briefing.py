@@ -25,3 +25,9 @@ def test_load_mock_data_default_filenames(tmp_path: Path) -> None:
     assert loaded["weather"] == {"default": {}, "days": {}}
     assert loaded["quotes"] == []
     assert loaded["calendar"] == []
+
+def test_pick_weather() -> None:
+    weather = {"default": {"temp": 1}, "days": {"2026-01-02": {"temp": 2}}}
+    assert briefing_mod.pick_weather(weather, "2026-01-02")["temp"] == 2
+    assert briefing_mod.pick_weather(weather, "2099-01-01")["temp"] == 1
+
