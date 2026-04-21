@@ -90,3 +90,35 @@ def test_normalize_timesheet_payload_clears_bad_active_timer(tt_config: None) ->
     raw = {"active_timer": {"task": "x"}, "entries": []}
     out = tt.normalize_timesheet_payload(raw)
     assert out["active_timer"] is None
+
+
+def test_period_entries(tt_config: None, monkeypatch: pytest.MonkeyPatch) -> None:
+    now = datetime(2026, 1, 10, 12, 0, tzinfo=UTC)
+    monkeypatch.setattr(tt, "now_in_timezone", lambda: now)
+    entries = [
+        {
+            "id": "old",
+            "task": "a",
+            "start_time": (now - timedelta(days=10)).isoformat(),
+            "end_time": (now - timedelta(days=10, hours=-1)).isoformat(),
+            "duration_seconds": 3600,
+            "billable_rate": 0,
+            "billable_total": 0,
+            "project": "P",
+            "tag": "t",
+        },
+        {
+            "id": "new",
+            "task": "b",
+            "start_time": (now - timedelta(days=1)).isoformat(),
+            "end_time": now.isoformat(),
+            "duration_seconds": 3600,
+            "billable_rate": 0,
+            "billable_total": 0,
+            "project": "P",
+            "tag": "t",
+        },
+    ]
+    week = tt.period_entries(entries, "week")
+    assert {e["id"] for e in week} == {"new"}
+
