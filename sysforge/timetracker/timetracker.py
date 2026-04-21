@@ -52,6 +52,12 @@ def make_entry_id() -> str:
     stamp = datetime.now().strftime("%Y%m%d%H%M%S")
     return f"entry-{stamp}-{secrets.token_hex(4)}"
 
+def _intish(value: Any) -> bool:
+    try:
+        int(value)
+        return True
+    except (TypeError, ValueError):
+        return False
 
 
 
