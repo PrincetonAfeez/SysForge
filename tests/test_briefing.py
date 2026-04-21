@@ -31,3 +31,12 @@ def test_pick_weather() -> None:
     assert briefing_mod.pick_weather(weather, "2026-01-02")["temp"] == 2
     assert briefing_mod.pick_weather(weather, "2099-01-01")["temp"] == 1
 
+
+def test_calendar_items_for_day() -> None:
+    items = [
+        {"date": "2026-01-01", "time": "10:00", "title": "A"},
+        {"date": "2026-01-01", "time": "09:00", "title": "B"},
+        {"date": "2026-01-02", "time": "08:00", "title": "C"},
+    ]
+    day = briefing_mod.calendar_items_for_day(items, "2026-01-01")
+    assert [i["title"] for i in day] == ["B", "A"]
