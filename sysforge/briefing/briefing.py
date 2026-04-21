@@ -194,3 +194,10 @@ def load_mock_data(config: dict[str, Any], data_dir: Path) -> dict[str, Any]:
     calendar = _normalize_calendar_payload(load_json_file(data_dir / calendar_name, default=[]))
     return {"weather": weather, "quotes": quotes, "calendar": calendar}
 
+def greeting_for_hour(hour: int, name: str) -> str:
+    if hour < 12:
+        return f"Good morning, {name}"
+    if hour < 18:
+        return f"Good afternoon, {name}"
+    return f"Good evening, {name}"
+
