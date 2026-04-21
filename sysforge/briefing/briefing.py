@@ -220,3 +220,19 @@ def calendar_items_for_day(
     items = [item for item in calendar_items if item.get("date") == day_key]
     return sorted(items, key=lambda item: item.get("time", ""))
 
+def _resolve_disk_usage_root(preferred: Path) -> Path:
+    try:
+        current = preferred.expanduser().resolve(strict=False)
+    except OSError:
+        current = preferred.expanduser()
+    for _ in range(128):
+        try:
+            if current.exists() and current.is_dir():
+                return current
+        except OSError:
+            pass
+        parent = current.parent
+        if parent == current:
+            break
+        current = parent
+    return Path.home()
