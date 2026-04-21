@@ -96,3 +96,13 @@ def test_normalize_briefing_config_bad_timezone() -> None:
 
 def test_normalize_weather_not_dict() -> None:
     assert briefing_mod._normalize_weather_payload("bad") == {"default": {}, "days": {}}
+
+def test_normalize_calendar_skips_bad_rows() -> None:
+    raw = [
+        {"date": "2026-01-01", "time": "09:00", "title": "Ok"},
+        "skip",
+        {"no_date": True},
+    ]
+    out = briefing_mod._normalize_calendar_payload(raw)
+    assert len(out) == 1 and out[0]["title"] == "Ok"
+
