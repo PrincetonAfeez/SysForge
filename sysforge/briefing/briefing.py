@@ -236,3 +236,23 @@ def _resolve_disk_usage_root(preferred: Path) -> Path:
             break
         current = parent
     return Path.home()
+
+def get_system_snapshot(disk_root: Path | None = None) -> dict[str, Any]:
+    psutil = load_psutil()
+    root = disk_root if disk_root is not None else Path.home()
+    try:
+        free_disk = shutil.disk_usage(root).free
+    except OSError:
+        free_disk = shutil.disk_usage(Path.home()).free
+
+    uptime_seconds = 0
+    if psutil is not None:
+        uptime_seconds = int(time.time() - psutil.boot_time())
+
+    return {
+        "os": platform.platform(),
+        "python_version": sys.version.split()[0],
+        "uptime": format_duration(uptime_seconds),
+        "free_disk": free_disk,
+        "disk_root": str(root),
+    }
