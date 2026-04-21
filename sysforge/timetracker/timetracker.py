@@ -132,6 +132,37 @@ def _normalize_entry(raw: Any, zone: ZoneInfo) -> dict[str, Any] | None:
         "billable_total": billable_total,
     }
 
+def normalize_timesheet_payload(payload: Any) -> dict[str, Any]:
+    if not isinstance(payload, dict):
+        return {"active_timer": None, "entries": []}
+    zone = ZoneInfo(active_timezone())
+    raw_entries = payload.get("entries", [])
+    if not isinstance(raw_entries, list):
+        raw_entries = []
+    entries: list[dict[str, Any]] = []
+    for item in raw_entries:
+        normalized = _normalize_entry(item, zone)
+        if normalized is not None:
+            entries.append(normalized)
+        elif item not in (None, {}):
+            logger.warning("Skipping invalid timesheet entry: %r", item)
+    active = _normalize_active_timer(payload.get("active_timer"))
+    result = dict(payload)
+    result["entries"] = entries
+    result["active_timer"] = active
+    return result
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
