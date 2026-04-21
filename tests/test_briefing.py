@@ -127,3 +127,49 @@ def test_markdown_quote_wraps_long_paragraph() -> None:
     assert md.count("> ") >= 2
     assert "## Quote" in md
 
+def test_generate_briefing_e2e_markdown(
+    isolated_sysforge_home: None, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    profile = tmp_path / "profile"
+    profile.mkdir()
+    out_dir = tmp_path / "briefings_out"
+    out_dir.mkdir()
+    briefing_cfg = {
+        "timezone": "UTC",
+        "temperature_unit": "F",
+        "output_dir": str(out_dir),
+        "weather_file": "weather.json",
+        "quotes_file": "quotes.json",
+        "calendar_file": "calendar.json",
+    }
+    (profile / "briefing_config.json").write_text(json.dumps(briefing_cfg), encoding="utf-8")
+    weather = {
+        "default": {"temp": 70, "condition": "Clear", "high": 72, "low": 65},
+        "days": {},
+    }
+    (profile / "weather.json").write_text(json.dumps(weather), encoding="utf-8")
+    (profile / "quotes.json").write_text(json.dumps(["Hello from briefing."]), encoding="utf-8")
+    (profile / "calendar.json").write_text("[]", encoding="utf-8")
+
+    fixed = datetime(2026, 7, 1, 15, 0, 0)
+
+    def fake_now(tz: Any) -> datetime:
+        return fixed.replace(tzinfo=tz)
+
+    monkeypatch.setattr(briefing_mod, "_zoned_now", fake_now)
+
+    path = briefing_mod.generate_briefing(
+        briefing_config_path=profile / "briefing_config.json",
+        output_format="markdown",
+        include_weather=True,
+        include_quote=True,
+        include_calendar=True,
+    )
+    assert path.parent == out_dir
+    assert path.suffix == ".md"
+    body = path.read_text(encoding="utf-8")
+    assert body.startswith("# Good")
+    assert "Hello from briefing" in body
+    history_path = tmp_path / "sysforge_home" / "briefings" / "briefing_history.json"
+    history = json.loads(history_path.read_text(encoding="utf-8"))
+    assert history[-1]["format"] == "markdown"
