@@ -106,3 +106,21 @@ def _normalize_quotes_payload(data: Any) -> list[str]:
     if not isinstance(data, list):
         return []
     return [str(item) for item in data]
+
+def _normalize_calendar_payload(data: Any) -> list[dict[str, Any]]:
+    if not isinstance(data, list):
+        return []
+    items: list[dict[str, Any]] = []
+    for raw in data:
+        if not isinstance(raw, dict):
+            continue
+        if raw.get("date") is None:
+            continue
+        items.append(
+            {
+                "date": str(raw.get("date")),
+                "time": str(raw.get("time", "")),
+                "title": str(raw.get("title", "Untitled")),
+            }
+        )
+    return items
