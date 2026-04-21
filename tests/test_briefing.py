@@ -72,3 +72,12 @@ def test_build_text_briefing_temperature_unit() -> None:
     assert "°C" in text
     assert "Current: 0 °C" in text
 
+def test_generate_briefing_rejects_bad_format() -> None:
+    with pytest.raises(ValueError, match="output_format"):
+        briefing_mod.generate_briefing(
+            briefing_config_path=None,
+            output_format="pdf",
+            include_weather=False,
+            include_quote=False,
+            include_calendar=False,
+        )
