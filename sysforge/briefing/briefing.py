@@ -214,3 +214,9 @@ def pick_quote(quotes: list[str]) -> str:
     cleaned = _sanitize_quote_text(str(raw))
     return cleaned or "No quote available today."
 
+def calendar_items_for_day(
+    calendar_items: list[dict[str, Any]], day_key: str
+) -> list[dict[str, Any]]:
+    items = [item for item in calendar_items if item.get("date") == day_key]
+    return sorted(items, key=lambda item: item.get("time", ""))
+
