@@ -102,3 +102,7 @@ def _normalize_weather_payload(data: Any) -> dict[str, Any]:
         days = {}
     return {"default": default, "days": days}
 
+def _normalize_quotes_payload(data: Any) -> list[str]:
+    if not isinstance(data, list):
+        return []
+    return [str(item) for item in data]
