@@ -42,6 +42,11 @@ def save_timesheet(payload: dict[str, Any]) -> None:
     normalized["updated_at"] = datetime.now().isoformat()
     write_json_file(get_timesheet_file(), normalized, atomic=True)
 
+def project_rate(project_name: str | None) -> float:
+    if not project_name:
+        return 0.0
+    config = load_shared_config()
+    return float(config.get("time", {}).get("project_rates", {}).get(project_name, 0))
 
 
 
