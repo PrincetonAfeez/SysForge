@@ -189,6 +189,17 @@ def todays_entries(entries: list[dict[str, Any]]) -> list[dict[str, Any]]:
     today_key = now_in_timezone().date().isoformat()
     return [entry for entry in entries if entry.get("start_time", "").startswith(today_key)]
 
+def _entry_start_datetime(entry: dict[str, Any], tz: tzinfo) -> datetime | None:
+    raw = entry.get("start_time")
+    if not isinstance(raw, str):
+        return None
+    try:
+        parsed = datetime.fromisoformat(raw)
+    except ValueError:
+        return None
+    if parsed.tzinfo is None:
+        return parsed.replace(tzinfo=tz)
+    return parsed.astimezone(tz)
 
 
 
