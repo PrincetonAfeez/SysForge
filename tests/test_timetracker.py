@@ -122,3 +122,20 @@ def test_period_entries(tt_config: None, monkeypatch: pytest.MonkeyPatch) -> Non
     week = tt.period_entries(entries, "week")
     assert {e["id"] for e in week} == {"new"}
 
+def test_report_lines_tolerates_sparse_entries(tt_config: None) -> None:
+    lines = tt.report_lines(
+        [
+            {
+                "id": "1",
+                "task": "t",
+                "start_time": "2026-01-01T10:00:00+00:00",
+                "end_time": "2026-01-01T11:00:00+00:00",
+                "duration_seconds": 3600,
+                "billable_rate": 0,
+                "billable_total": "bad",
+                "project": "P",
+                "tag": "g",
+            }
+        ]
+    )
+    assert any("Billable total" in line for line in lines)
