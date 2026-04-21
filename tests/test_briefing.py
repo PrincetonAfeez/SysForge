@@ -81,3 +81,12 @@ def test_generate_briefing_rejects_bad_format() -> None:
             include_quote=False,
             include_calendar=False,
         )
+
+
+def test_normalize_briefing_config_strips_unknown() -> None:
+    out = briefing_mod.normalize_briefing_config(
+        {"timezone": "UTC", "typo_key": 123, "name": "Ada"}
+    )
+    assert "typo_key" not in out
+    assert out["name"] == "Ada"
+
