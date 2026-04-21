@@ -145,3 +145,11 @@ def _markdown_quote_block(quote: str, wrap_width: int = 88) -> list[str]:
         lines_out.pop()
     return lines_out
 
+def load_psutil() -> Any:
+    try:
+        import psutil
+
+        return psutil
+    except ModuleNotFoundError:
+        return None
+
