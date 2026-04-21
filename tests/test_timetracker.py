@@ -22,3 +22,7 @@ MIN_CONFIG = {
 def tt_config(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setattr(tt, "load_shared_config", lambda: MIN_CONFIG)
 
+def test_seconds_between() -> None:
+    a = datetime(2026, 1, 1, 10, 0, tzinfo=UTC)
+    b = datetime(2026, 1, 1, 11, 30, tzinfo=UTC)
+    assert tt.seconds_between(a, b) == 5400
