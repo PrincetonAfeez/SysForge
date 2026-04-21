@@ -426,6 +426,26 @@ def add(
     typer.echo(f"Added entry {entry['id']}")
 
 
+@app.command()
+def delete(
+    entry_id: str = typer.Argument(..., help="Entry ID to remove"),
+    yes: bool = typer.Option(False, "--yes", help="Skip confirmation prompt"),
+) -> None:
+    data = load_timesheet()
+    entries = data.get("entries", [])
+    match = next((entry for entry in entries if str(entry.get("id", "")) == entry_id), None)
+    if match is None:
+        print_error(f"Entry not found: {entry_id}")
+
+    if not yes:
+        confirmed = typer.confirm(f"Delete entry {entry_id}?")
+        if not confirmed:
+            typer.echo("Delete canceled.")
+            raise typer.Exit(code=0)
+
+    data["entries"] = [entry for entry in entries if str(entry.get("id", "")) != entry_id]
+    save_timesheet(data)
+    typer.echo(f"Deleted entry {entry_id}")
 
 
 
