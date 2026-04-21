@@ -408,3 +408,15 @@ def build_markdown_briefing(
     )
     return "\n".join(lines)
 
+def append_briefing_history(output_file: Path, chosen_format: str) -> None:
+    history_path = get_briefing_history_file()
+    history = load_json_file(history_path, default=[])
+    history.append(
+        {
+            "timestamp": datetime.now().isoformat(),
+            "output_file": str(output_file),
+            "format": chosen_format,
+        }
+    )
+    write_json_file(history_path, history, atomic=True)
+
