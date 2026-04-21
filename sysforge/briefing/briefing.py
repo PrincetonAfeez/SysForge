@@ -91,3 +91,14 @@ def normalize_briefing_config(config: dict[str, Any]) -> dict[str, Any]:
         cleaned["output_dir"] = str(cleaned["output_dir"])
     return cleaned
 
+def _normalize_weather_payload(data: Any) -> dict[str, Any]:
+    if not isinstance(data, dict):
+        return {"default": {}, "days": {}}
+    default = data.get("default")
+    days = data.get("days")
+    if not isinstance(default, dict):
+        default = {}
+    if not isinstance(days, dict):
+        days = {}
+    return {"default": default, "days": days}
+
