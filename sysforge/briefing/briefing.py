@@ -153,3 +153,34 @@ def load_psutil() -> Any:
     except ModuleNotFoundError:
         return None
 
+def load_briefing_config(
+    briefing_config_path: Path | None = None,
+) -> tuple[dict[str, Any], Path]:
+    shared_config = load_shared_config()
+    data_dir = get_briefing_data_dir()
+    base_config = load_json_file(data_dir / "briefing_config.json", default={})
+
+    if briefing_config_path is not None:
+        if not briefing_config_path.exists():
+            print_error(f"Briefing config not found: {briefing_config_path}")
+        data_dir = briefing_config_path.parent
+        file_config = load_json_file(briefing_config_path, default={})
+        config = deep_merge(base_config, file_config)
+    else:
+        config_path_from_shared = shared_config.get("briefing", {}).get("config_file", "")
+        if config_path_from_shared:
+            config_path = Path(config_path_from_shared)
+            if config_path.exists():
+                data_dir = config_path.parent
+                config = deep_merge(base_config, load_json_file(config_path, default={}))
+            else:
+                config = base_config
+        else:
+            config = base_config
+
+    raw_name = shared_config.get("user", {}).get("name", config.get("name", "Developer"))
+    config["name"] = _sanitize_single_line(str(raw_name)) or "Developer"
+    config["timezone"] = shared_config.get("user", {}).get(
+        "timezone", config.get("timezone", "UTC")
+    )
+    return normalize_briefing_config(config), data_dir
