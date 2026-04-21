@@ -268,6 +268,40 @@ def start(
     logger.info("Started timer for %s", task)
     typer.echo(f"Started timer: {task}")
 
+@app.command()
+def stop() -> None:
+    data = load_timesheet()
+    active_timer = data.get("active_timer")
+    if not active_timer:
+        print_error("No timer is currently running.")
+
+    start_raw = active_timer.get("start_time")
+    if not isinstance(start_raw, str):
+        print_error("Active timer is missing a valid start_time.")
+    try:
+        start_time = datetime.fromisoformat(start_raw)
+    except ValueError:
+        print_error("Active timer has an invalid start_time.")
+    if start_time.tzinfo is None:
+        start_time = start_time.replace(tzinfo=ZoneInfo(active_timezone()))
+    else:
+        start_time = start_time.astimezone(ZoneInfo(active_timezone()))
+    end_time = now_in_timezone()
+    entry = build_entry(
+        task=str(active_timer.get("task", "Untitled")),
+        start_time=start_time,
+        end_time=end_time,
+        project=active_timer.get("project"),
+        tag=active_timer.get("tag"),
+    )
+    data.setdefault("entries", []).append(entry)
+    data["active_timer"] = None
+    save_timesheet(data)
+
+    typer.echo(f"Stopped timer: {entry['task']}")
+    typer.echo(f"Duration: {format_duration(entry['duration_seconds'])}")
+    if entry["duration_seconds"] > 8 * 3600:
+        typer.echo("Warning: this timer ran for more than 8 hours.")
 
 
 
