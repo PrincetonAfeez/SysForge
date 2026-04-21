@@ -486,3 +486,33 @@ def generate_briefing(
     logger.info("Briefing generated at %s", output_file)
     return output_file
 
+@app.callback(invoke_without_command=True)
+def briefing(
+    ctx: typer.Context,
+    output_format: str | None = typer.Option(None, "--format", help="text or markdown"),
+    briefing_config: Path | None = typer.Option(
+        None, "--briefing-config", help="Optional briefing config file."
+    ),
+    no_weather: bool = typer.Option(False, "--no-weather", help="Skip the weather section."),
+    no_quote: bool = typer.Option(False, "--no-quote", help="Skip the quote section."),
+    no_calendar: bool = typer.Option(False, "--no-calendar", help="Skip the calendar section."),
+) -> None:
+    if ctx.invoked_subcommand:
+        return
+
+    shared_config = load_shared_config()
+    chosen_format = output_format or shared_config.get("briefing", {}).get("output_format", "text")
+    if chosen_format not in {"text", "markdown"}:
+        print_error("--format must be text or markdown.")
+
+    try:
+        output_file = generate_briefing(
+            briefing_config_path=briefing_config,
+            output_format=chosen_format,
+            include_weather=not no_weather,
+            include_quote=not no_quote,
+            include_calendar=not no_calendar,
+        )
+    except ValueError as exc:
+        print_error(str(exc))
+    typer.echo(f"Briefing written to {output_file}")
