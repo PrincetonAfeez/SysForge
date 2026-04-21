@@ -344,3 +344,67 @@ def build_text_briefing(
         ]
     )
     return "\n".join(lines)
+
+def build_markdown_briefing(
+    *,
+    greeting: str,
+    now: datetime,
+    weather: dict[str, Any] | None,
+    quote: str | None,
+    calendar_items: list[dict[str, Any]] | None,
+    system_snapshot: dict[str, Any],
+    temperature_unit: str = "F",
+) -> str:
+    lines = [
+        f"# {greeting}",
+        "",
+        f"- Date: {now.strftime('%A, %Y-%m-%d')}",
+        f"- Time: {now.strftime('%I:%M %p %Z')}",
+        "",
+    ]
+
+    if weather is not None:
+        unit_l = _temperature_unit_label(temperature_unit)
+        cond = _sanitize_single_line(str(weather.get("condition", "Unknown")))
+        cur = _format_temperature_value(weather.get("temp"), temperature_unit)
+        hi = _format_temperature_value(weather.get("high"), temperature_unit)
+        lo = _format_temperature_value(weather.get("low"), temperature_unit)
+        lines.extend(
+            [
+                "## Weather",
+                f"- Condition: {cond}",
+                f"- Current: {cur} °{unit_l}",
+                f"- High / Low: {hi} / {lo} °{unit_l}",
+                "",
+            ]
+        )
+
+    if quote is not None:
+        lines.append("## Quote")
+        lines.extend(_markdown_quote_block(quote))
+        lines.append("")
+
+    if calendar_items is not None:
+        lines.append("## Today's calendar")
+        if calendar_items:
+            for item in calendar_items:
+                t = _sanitize_single_line(str(item.get("time", "??:??")))
+                title = _sanitize_single_line(str(item.get("title", "Untitled")))
+                lines.append(f"- {t} - {title}")
+        else:
+            lines.append("- No calendar items today.")
+        lines.append("")
+
+    free_gb = round(system_snapshot["free_disk"] / (1024**3), 2)
+    disk_root = system_snapshot["disk_root"]
+    lines.extend(
+        [
+            "## System snapshot",
+            f"- OS: {system_snapshot['os']}",
+            f"- Python: {system_snapshot['python_version']}",
+            f"- Uptime: {system_snapshot['uptime']}",
+            f"- Free disk ({disk_root}): {free_gb} GB",
+        ]
+    )
+    return "\n".join(lines)
+
