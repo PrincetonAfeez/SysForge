@@ -181,6 +181,8 @@ def build_entry(
     }
 
 
+def parse_entry_datetime(value: str) -> datetime:
+    return parse_local_datetime(value, active_timezone())
 
 
 
