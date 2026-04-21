@@ -70,3 +70,24 @@ def _sanitize_quote_text(text: str) -> str:
         if collapsed:
             paragraphs.append(collapsed)
     return "\n\n".join(paragraphs)
+
+
+def normalize_briefing_config(config: dict[str, Any]) -> dict[str, Any]:
+    unknown = sorted(k for k in config if k not in _ALLOWED_BRIEFING_CONFIG_KEYS)
+    for key in unknown:
+        logger.warning("Ignoring unknown briefing config key: %s", key)
+    cleaned: dict[str, Any] = {k: config[k] for k in config if k in _ALLOWED_BRIEFING_CONFIG_KEYS}
+    tz_name = str(cleaned.get("timezone", "UTC"))
+    try:
+        ZoneInfo(tz_name)
+    except Exception as exc:
+        raise ValueError(f"Invalid briefing timezone: {tz_name!r}") from exc
+    unit = str(cleaned.get("temperature_unit", "F")).upper()
+    cleaned["temperature_unit"] = unit if unit in {"F", "C"} else "F"
+    for file_key in ("weather_file", "quotes_file", "calendar_file"):
+        if file_key in cleaned and cleaned[file_key] is not None:
+            cleaned[file_key] = str(cleaned[file_key])
+    if "output_dir" in cleaned and cleaned["output_dir"] is not None:
+        cleaned["output_dir"] = str(cleaned["output_dir"])
+    return cleaned
+
