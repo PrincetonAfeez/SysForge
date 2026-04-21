@@ -51,3 +51,24 @@ def test_resolve_disk_usage_root(tmp_path: Path) -> None:
     nested = tmp_path / "a" / "b" / "c"
     assert briefing_mod._resolve_disk_usage_root(nested) == tmp_path.resolve()
 
+def test_build_text_briefing_temperature_unit() -> None:
+    now = datetime(2026, 1, 1, 12, 0, tzinfo=ZoneInfo("UTC"))
+    snap = {
+        "os": "test-os",
+        "python_version": "3.14",
+        "uptime": "0h 00m",
+        "free_disk": 10 * 1024**3,
+        "disk_root": "/tmp",
+    }
+    text = briefing_mod.build_text_briefing(
+        greeting="Hi",
+        now=now,
+        weather={"condition": "OK", "temp": 32, "high": 50, "low": 40},
+        quote=None,
+        calendar_items=None,
+        system_snapshot=snap,
+        temperature_unit="C",
+    )
+    assert "°C" in text
+    assert "Current: 0 °C" in text
+
