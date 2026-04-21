@@ -94,3 +94,5 @@ def test_normalize_briefing_config_bad_timezone() -> None:
     with pytest.raises(ValueError, match="Invalid briefing timezone"):
         briefing_mod.normalize_briefing_config({"timezone": "Not/A/Zone"})
 
+def test_normalize_weather_not_dict() -> None:
+    assert briefing_mod._normalize_weather_payload("bad") == {"default": {}, "days": {}}
