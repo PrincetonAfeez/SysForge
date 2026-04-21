@@ -86,3 +86,7 @@ def test_normalize_timesheet_payload_skips_bad(tt_config: None) -> None:
     assert len(out["entries"]) == 1
     assert out["entries"][0]["id"] == "good"
 
+def test_normalize_timesheet_payload_clears_bad_active_timer(tt_config: None) -> None:    
+    raw = {"active_timer": {"task": "x"}, "entries": []}
+    out = tt.normalize_timesheet_payload(raw)
+    assert out["active_timer"] is None
