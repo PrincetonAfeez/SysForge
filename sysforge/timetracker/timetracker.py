@@ -48,6 +48,9 @@ def project_rate(project_name: str | None) -> float:
     config = load_shared_config()
     return float(config.get("time", {}).get("project_rates", {}).get(project_name, 0))
 
+def make_entry_id() -> str:
+    stamp = datetime.now().strftime("%Y%m%d%H%M%S")
+    return f"entry-{stamp}-{secrets.token_hex(4)}"
 
 
 
