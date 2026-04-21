@@ -29,6 +29,8 @@ def active_timezone() -> str:
     raw = config.get("user", {}).get("timezone", "UTC")
     return raw if isinstance(raw, str) else "UTC"
 
+def now_in_timezone() -> datetime:
+    return datetime.now(ZoneInfo(active_timezone()))
 
 
 
