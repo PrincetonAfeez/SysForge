@@ -78,6 +78,60 @@ def _normalize_active_timer(raw: Any) -> dict[str, Any] | None:
         "start_time": start_raw,
     }
 
+def _normalize_entry(raw: Any, zone: ZoneInfo) -> dict[str, Any] | None:
+    if not isinstance(raw, dict):
+        return None
+    entry_id = raw.get("id")
+    if entry_id is None or str(entry_id).strip() == "":
+        return None
+    start_raw = raw.get("start_time")
+    end_raw = raw.get("end_time")
+    if not isinstance(start_raw, str) or not isinstance(end_raw, str):
+        return None
+    try:
+        start = datetime.fromisoformat(start_raw)
+        end = datetime.fromisoformat(end_raw)
+    except ValueError:
+        return None
+    if start.tzinfo is None:
+        start = start.replace(tzinfo=zone)
+    else:
+        start = start.astimezone(zone)
+    if end.tzinfo is None:
+        end = end.replace(tzinfo=zone)
+    else:
+        end = end.astimezone(zone)
+    if _intish(raw.get("duration_seconds")):
+        duration = max(int(raw["duration_seconds"]), 0)
+    else:
+        duration = max(seconds_between(start, end), 0)
+    task = str(raw.get("task", "")).strip() or "Untitled"
+    project = str(raw.get("project") or "Unassigned") or "Unassigned"
+    tag = str(raw.get("tag") or "general") or "general"
+    try:
+        rate = float(raw.get("billable_rate", 0) or 0.0)
+    except (TypeError, ValueError):
+        rate = 0.0
+    hours = duration / 3600.0
+    raw_total = raw.get("billable_total")
+    try:
+        billable_total = (
+            round(float(raw_total), 2) if raw_total is not None else round(rate * hours, 2)
+        )
+    except (TypeError, ValueError):
+        billable_total = round(rate * hours, 2)
+    return {
+        "id": str(entry_id),
+        "task": task,
+        "project": project,
+        "tag": tag,
+        "start_time": start.isoformat(),
+        "end_time": end.isoformat(),
+        "duration_seconds": duration,
+        "billable_rate": rate,
+        "billable_total": billable_total,
+    }
+
 
 
 
