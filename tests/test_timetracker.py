@@ -31,3 +31,11 @@ def test_make_entry_id_has_suffix() -> None:
     eid = tt.make_entry_id()
     assert eid.startswith("entry-")
     assert eid.count("-") >= 2
+
+def test_build_entry_billable(tt_config: None) -> None:
+    start = datetime(2026, 1, 1, 9, 0, tzinfo=UTC)
+    end = datetime(2026, 1, 1, 10, 0, tzinfo=UTC)
+    entry = tt.build_entry(task="Work", start_time=start, end_time=end, project="Acme", tag="dev")
+    assert entry["duration_seconds"] == 3600
+    assert entry["billable_rate"] == 100.0
+    assert entry["billable_total"] == 100.0
