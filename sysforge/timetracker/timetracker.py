@@ -59,6 +59,25 @@ def _intish(value: Any) -> bool:
     except (TypeError, ValueError):
         return False
 
+def _normalize_active_timer(raw: Any) -> dict[str, Any] | None:
+    if not isinstance(raw, dict):
+        return None
+    task = str(raw.get("task", "")).strip()
+    start_raw = raw.get("start_time")
+    if not task or not isinstance(start_raw, str):
+        return None
+    try:
+        datetime.fromisoformat(start_raw)
+    except ValueError:
+        logger.warning("Clearing active_timer: invalid start_time %r", start_raw)
+        return None
+    return {
+        "task": task,
+        "project": str(raw.get("project") or "Unassigned"),
+        "tag": str(raw.get("tag") or "general"),
+        "start_time": start_raw,
+    }
+
 
 
 
