@@ -157,6 +157,29 @@ def seconds_between(start_time: datetime, end_time: datetime) -> int:
     return int((end_time - start_time).total_seconds())
 
 
+def build_entry(
+    *,
+    task: str,
+    start_time: datetime,
+    end_time: datetime,
+    project: str | None,
+    tag: str | None,
+) -> dict[str, Any]:
+    duration_seconds = seconds_between(start_time, end_time)
+    rate = project_rate(project)
+    hours = duration_seconds / 3600
+    return {
+        "id": make_entry_id(),
+        "task": task,
+        "project": project or "Unassigned",
+        "tag": tag or "general",
+        "start_time": start_time.isoformat(),
+        "end_time": end_time.isoformat(),
+        "duration_seconds": duration_seconds,
+        "billable_rate": rate,
+        "billable_total": round(rate * hours, 2),
+    }
+
 
 
 
