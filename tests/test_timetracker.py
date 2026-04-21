@@ -39,3 +39,50 @@ def test_build_entry_billable(tt_config: None) -> None:
     assert entry["duration_seconds"] == 3600
     assert entry["billable_rate"] == 100.0
     assert entry["billable_total"] == 100.0
+
+def test_normalize_timesheet_payload_skips_bad(tt_config: None) -> None:
+    raw = {
+        "active_timer": None,
+        "entries": [
+            {
+                "id": "good",
+                "task": "T",
+                "start_time": "2026-01-01T10:00:00+00:00",
+                "end_time": "2026-01-01T11:00:00+00:00",
+                "duration_seconds": 3600,
+                "billable_rate": 0,
+                "billable_total": 0,
+                "project": "P",
+                "tag": "g",
+            },
+            "not-a-dict",
+            {"id": "", "task": "x"},
+        ],
+    }
+    out = tt.normalize_timesheet_payload(raw)
+    assert len(out["entries"]) == 1
+    assert out["entries"][0]["id"] == "good"
+
+def test_normalize_timesheet_payload_skips_bad(tt_config: None) -> None:
+    raw = {
+        "active_timer": None,
+        "entries": [
+            {
+                "id": "good",
+                "task": "T",
+                "start_time": "2026-01-01T10:00:00+00:00",
+                "end_time": "2026-01-01T11:00:00+00:00",
+                "duration_seconds": 3600,
+                "billable_rate": 0,
+                "billable_total": 0,
+                "project": "P",
+                "tag": "g",
+            },
+            "not-a-dict",
+            {"id": "", "task": "x"},
+        ],
+    }
+    out = tt.normalize_timesheet_payload(raw)
+    assert len(out["entries"]) == 1
+    assert out["entries"][0]["id"] == "good"
+
