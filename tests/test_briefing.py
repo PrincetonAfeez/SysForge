@@ -46,3 +46,8 @@ def test_format_temperature_value() -> None:
     assert briefing_mod._format_temperature_value(32, "C") == "0"
     assert briefing_mod._format_temperature_value(50, "F") == "50"
     assert briefing_mod._format_temperature_value("n/a", "F") == "n/a"
+
+def test_resolve_disk_usage_root(tmp_path: Path) -> None:
+    nested = tmp_path / "a" / "b" / "c"
+    assert briefing_mod._resolve_disk_usage_root(nested) == tmp_path.resolve()
+
