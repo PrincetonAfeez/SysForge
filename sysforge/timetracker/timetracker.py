@@ -218,6 +218,35 @@ def period_entries(entries: list[dict[str, Any]], period: str) -> list[dict[str,
     return filtered
 
 
+def report_lines(entries: list[dict[str, Any]]) -> list[str]:
+    totals_by_project: dict[str, int] = {}
+    totals_by_tag: dict[str, int] = {}
+    billable_total = 0.0
+
+    for entry in entries:
+        project = str(entry.get("project", "Unassigned"))
+        tag = str(entry.get("tag", "general"))
+        duration = int(entry.get("duration_seconds", 0) or 0)
+        totals_by_project[project] = totals_by_project.get(project, 0) + duration
+        totals_by_tag[tag] = totals_by_tag.get(tag, 0) + duration
+        try:
+            billable_total += float(entry.get("billable_total", 0.0) or 0.0)
+        except (TypeError, ValueError):
+            billable_total += 0.0
+
+    lines = ["Totals by project"]
+    for project, seconds in sorted(totals_by_project.items()):
+        lines.append(f"  {project}: {format_duration(seconds)}")
+
+    lines.append("")
+    lines.append("Totals by tag")
+    for tag, seconds in sorted(totals_by_tag.items()):
+        lines.append(f"  {tag}: {format_duration(seconds)}")
+
+    lines.append("")
+    lines.append(f"Billable total: ${billable_total:.2f}")
+    return lines
+
 
 
 
