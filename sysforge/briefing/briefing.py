@@ -184,3 +184,13 @@ def load_briefing_config(
         "timezone", config.get("timezone", "UTC")
     )
     return normalize_briefing_config(config), data_dir
+
+def load_mock_data(config: dict[str, Any], data_dir: Path) -> dict[str, Any]:
+    weather_name = str(config.get("weather_file") or _DEFAULT_DATA_FILENAMES["weather_file"])
+    quotes_name = str(config.get("quotes_file") or _DEFAULT_DATA_FILENAMES["quotes_file"])
+    calendar_name = str(config.get("calendar_file") or _DEFAULT_DATA_FILENAMES["calendar_file"])
+    weather = _normalize_weather_payload(load_json_file(data_dir / weather_name, default={}))
+    quotes = _normalize_quotes_payload(load_json_file(data_dir / quotes_name, default=[]))
+    calendar = _normalize_calendar_payload(load_json_file(data_dir / calendar_name, default=[]))
+    return {"weather": weather, "quotes": quotes, "calendar": calendar}
+
