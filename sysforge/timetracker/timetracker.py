@@ -352,6 +352,22 @@ def log() -> None:
             f"{format_duration(duration)} | {entry.get('project', '')} | {entry.get('tag', '')}"
         )
 
+@app.command()
+def report(
+    week: bool = typer.Option(False, "--week", help="Report on the last 7 days."),
+    month: bool = typer.Option(False, "--month", help="Report on the current month."),
+) -> None:
+    if week and month:
+        print_error("Choose either --week or --month, not both.")
+
+    period = "month" if month else "week"
+    entries = period_entries(load_timesheet().get("entries", []), period)
+    typer.echo(f"Time report for {period}")
+    typer.echo(f"Entries counted: {len(entries)}")
+    typer.echo("")
+    for line in report_lines(entries):
+        typer.echo(line)
+
 
 
 
