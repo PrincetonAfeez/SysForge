@@ -37,6 +37,10 @@ def load_timesheet() -> dict[str, Any]:
     raw = load_json_file(get_timesheet_file(), default={"active_timer": None, "entries": []})
     return normalize_timesheet_payload(raw)
 
+def save_timesheet(payload: dict[str, Any]) -> None:
+    normalized = normalize_timesheet_payload(payload)
+    normalized["updated_at"] = datetime.now().isoformat()
+    write_json_file(get_timesheet_file(), normalized, atomic=True)
 
 
 
