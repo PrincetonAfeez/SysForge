@@ -153,6 +153,8 @@ def normalize_timesheet_payload(payload: Any) -> dict[str, Any]:
     return result
 
 
+def seconds_between(start_time: datetime, end_time: datetime) -> int:
+    return int((end_time - start_time).total_seconds())
 
 
 
