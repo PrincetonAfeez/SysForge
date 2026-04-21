@@ -40,3 +40,9 @@ def test_calendar_items_for_day() -> None:
     ]
     day = briefing_mod.calendar_items_for_day(items, "2026-01-01")
     assert [i["title"] for i in day] == ["B", "A"]
+
+
+def test_format_temperature_value() -> None:
+    assert briefing_mod._format_temperature_value(32, "C") == "0"
+    assert briefing_mod._format_temperature_value(50, "F") == "50"
+    assert briefing_mod._format_temperature_value("n/a", "F") == "n/a"
