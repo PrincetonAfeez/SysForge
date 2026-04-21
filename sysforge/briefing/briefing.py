@@ -420,3 +420,69 @@ def append_briefing_history(output_file: Path, chosen_format: str) -> None:
     )
     write_json_file(history_path, history, atomic=True)
 
+def generate_briefing(
+    *,
+    briefing_config_path: Path | None,
+    output_format: str,
+    include_weather: bool,
+    include_quote: bool,
+    include_calendar: bool,
+) -> Path:
+    ensure_home_layout()
+    if output_format not in {"text", "markdown"}:
+        raise ValueError("output_format must be 'text' or 'markdown'")
+
+    config, data_dir = load_briefing_config(briefing_config_path)
+    output_dir_setting = str(config.get("output_dir") or "").strip()
+    output_dir = (
+        Path(output_dir_setting).expanduser() if output_dir_setting else get_briefings_dir()
+    )
+    disk_root = _resolve_disk_usage_root(output_dir)
+
+    temp_unit = str(config.get("temperature_unit", "F")).upper()
+    if temp_unit not in {"F", "C"}:
+        temp_unit = "F"
+
+    timezone = ZoneInfo(config["timezone"])
+    now = _zoned_now(timezone)
+    day_key = now.date().isoformat()
+    mock_data = load_mock_data(config, data_dir)
+
+    greeting = greeting_for_hour(now.hour, config["name"])
+    weather = pick_weather(mock_data["weather"], day_key) if include_weather else None
+    quote = pick_quote(mock_data["quotes"]) if include_quote else None
+    calendar_items = (
+        calendar_items_for_day(mock_data["calendar"], day_key) if include_calendar else None
+    )
+    system_snapshot = get_system_snapshot(disk_root)
+
+    if output_format == "markdown":
+        content = build_markdown_briefing(
+            greeting=greeting,
+            now=now,
+            weather=weather,
+            quote=quote,
+            calendar_items=calendar_items,
+            system_snapshot=system_snapshot,
+            temperature_unit=temp_unit,
+        )
+        extension = ".md"
+    else:
+        content = build_text_briefing(
+            greeting=greeting,
+            now=now,
+            weather=weather,
+            quote=quote,
+            calendar_items=calendar_items,
+            system_snapshot=system_snapshot,
+            temperature_unit=temp_unit,
+        )
+        extension = ".txt"
+
+    output_dir.mkdir(parents=True, exist_ok=True)
+    output_file = output_dir / f"briefing_{day_key}{extension}"
+    write_text_file(output_file, content)
+    append_briefing_history(output_file, output_format)
+    logger.info("Briefing generated at %s", output_file)
+    return output_file
+
