@@ -220,6 +220,13 @@ def snapshot_system(thresholds: dict[str, Any] | None = None) -> dict[str, Any]:
     }
     return snapshot
 
+def level_for_percent(percent: float, warning: int, critical: int) -> str:
+    if percent >= critical:
+        return "CRITICAL"
+    if percent >= warning:
+        return "WARNING"
+    return "INFO"
+
 
 
 
