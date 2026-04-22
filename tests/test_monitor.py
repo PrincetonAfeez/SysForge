@@ -161,3 +161,8 @@ def test_read_thresholds_coerces_strings(monkeypatch: pytest.MonkeyPatch) -> Non
     assert th["keep_files"] == 3
     assert th["top_process_scan"] == 100
     assert th["max_rss_scan"] == 3000
+
+def test_read_thresholds_non_object_health(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr(monitor_mod, "load_shared_config", lambda: {"health": "bad"})
+    th = monitor_mod.read_thresholds()
+    assert th["cpu_warning"] == 80
