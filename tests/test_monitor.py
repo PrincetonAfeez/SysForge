@@ -377,3 +377,10 @@ def test_render_snapshot_plain_branch(
     out = capsys.readouterr().out
     assert "CPU" in out and "7.5" in out
     assert "/data" in out
+
+def test_monitor_package_reexports() -> None:
+    import sysforge.monitor as pkg
+
+    assert pkg.snapshot_system is monitor_mod.snapshot_system
+    assert pkg.read_thresholds is monitor_mod.read_thresholds
+    assert pkg.app is monitor_mod.app
