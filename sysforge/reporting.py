@@ -56,3 +56,20 @@ def _load_today_briefing_data(today: date) -> dict[str, Any]:
         "runs": len(today_runs),
         "latest_file": latest.get("output_file") if latest else "No briefing today",
     }
+
+def _load_today_time_data(today: date) -> dict[str, Any]:
+    data = load_json_file(get_timesheet_file(), default={"entries": [], "active_timer": None})
+    total_seconds = 0
+    total_billable = 0.0
+    for entry in data.get("entries", []):
+        start_time = entry.get("start_time", "")
+        if start_time.startswith(today.isoformat()):
+            total_seconds += entry.get("duration_seconds", 0)
+            total_billable += entry.get("billable_total", 0.0)
+
+    active_timer = data.get("active_timer")
+    return {
+        "duration": format_duration(total_seconds),
+        "billable_total": round(total_billable, 2),
+        "active_task": active_timer.get("task") if active_timer else None,
+    }
