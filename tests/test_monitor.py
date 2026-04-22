@@ -354,3 +354,26 @@ def test_write_snapshot_sets_levels_and_appends(
     assert snap["overall_level"] == "CRITICAL"
     assert jsonl_calls and jsonl_calls[0][1]["overall_level"] == "CRITICAL"
     assert write_calls and write_calls[0][1]["levels"]["cpu"] == "CRITICAL"
+
+
+def test_render_snapshot_plain_branch(
+    capsys: pytest.CaptureFixture[str],
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setattr(monitor_mod, "load_rich_table_tools", lambda: None)
+    monitor_mod.render_snapshot(
+        {
+            "cpu_percent": 7.5,
+            "memory": {"percent": 8.0},
+            "disks": [{"mountpoint": "/data", "percent": 12, "free": 4096}],
+            "process_count": 200,
+            "uptime_seconds": 3600,
+            "overall_level": "INFO",
+            "top_processes": [
+                {"pid": 2, "name": "proc", "cpu_percent": 1.5, "memory_percent": 3.0},
+            ],
+        }
+    )
+    out = capsys.readouterr().out
+    assert "CPU" in out and "7.5" in out
+    assert "/data" in out
