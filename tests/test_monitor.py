@@ -175,3 +175,9 @@ def test_rotate_log_file(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Non
     assert log.with_name("health.jsonl.1").exists()
 
 
+def test_normalize_load_average() -> None:
+    assert monitor_mod.normalize_load_average(None) is None
+    assert monitor_mod.normalize_load_average((1.5, 2.0, 3.25)) == [1.5, 2.0, 3.25]
+    assert monitor_mod.normalize_load_average([0.1, 0.2, 0.3]) == [0.1, 0.2, 0.3]
+    assert monitor_mod.normalize_load_average((1, 2)) is None
+    assert monitor_mod.normalize_load_average("nope") is None
