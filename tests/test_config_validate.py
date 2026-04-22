@@ -86,3 +86,20 @@ def test_load_config_file_requires_object(tmp_path: Path) -> None:
     path.write_text("[1,2]", encoding="utf-8")
     with pytest.raises(ValueError, match="JSON object"):
         load_config_file(path, apply_env=False)
+
+
+def test_validate_write_defaults_persists(tmp_path: Path) -> None:
+    cfg = tmp_path / "app.json"
+    cfg.write_text("{}", encoding="utf-8")
+    schema = {
+        "type": "object",
+        "properties": {"title": {"type": "string", "default": "Hello"}},
+        "required": [],
+    }
+    raw = json.loads(cfg.read_text(encoding="utf-8"))
+    errors, merged = validate_against_schema(raw, schema)
+    assert not errors
+    assert merged.get("title") == "Hello"
+    write_json_file(cfg, merged, atomic=True)
+    roundtrip = json.loads(cfg.read_text(encoding="utf-8"))
+    assert roundtrip["title"] == "Hello"
