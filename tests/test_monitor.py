@@ -269,3 +269,10 @@ def test_health_cli_rejects_bad_interval(monkeypatch: pytest.MonkeyPatch) -> Non
     result = runner.invoke(monitor_mod.app, ["--interval", "0"])
     assert result.exit_code != 0
     run_monitor_mock.assert_not_called()
+
+def test_health_cli_help() -> None:
+    runner = CliRunner()
+    result = runner.invoke(monitor_mod.app, ["--help"])
+    assert result.exit_code == 0
+    assert "CPU" in result.stdout or "health" in result.stdout.lower()
+
