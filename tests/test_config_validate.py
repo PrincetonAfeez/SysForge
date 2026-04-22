@@ -79,3 +79,10 @@ def test_apply_environment_duplicate_path_mapping() -> None:
     out = apply_environment_overrides(data)
     assert isinstance(out, dict)
     assert out["a"]["b"] == 1 and out["a_b"] == 2
+
+
+def test_load_config_file_requires_object(tmp_path: Path) -> None:
+    path = tmp_path / "bad.json"
+    path.write_text("[1,2]", encoding="utf-8")
+    with pytest.raises(ValueError, match="JSON object"):
+        load_config_file(path, apply_env=False)
