@@ -71,3 +71,21 @@ def test_determine_levels_cpu_warning_and_critical() -> None:
         )["cpu"]
         == "CRITICAL"
     )
+
+def test_determine_levels_memory_warning_and_critical() -> None:
+    th = _default_thresholds()
+    assert (
+        monitor_mod.determine_levels(
+            {"cpu_percent": 10.0, "memory": {"percent": 92.0}, "disks": []},
+            th,
+        )["memory"]
+        == "WARNING"
+    )
+    assert (
+        monitor_mod.determine_levels(
+            {"cpu_percent": 10.0, "memory": {"percent": 98.0}, "disks": []},
+            th,
+        )["memory"]
+        == "CRITICAL"
+    )
+
