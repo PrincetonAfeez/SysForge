@@ -195,3 +195,27 @@ def _render_html(today: date, report_data: dict[str, Any]) -> str:
         "</html>\n"
     )
 
+def build_daily_report(output_format: str = "text") -> tuple[str, Path]:
+    today = datetime.now().date()
+    load_shared_config()
+
+    report_data = {
+        "organizer": _load_today_organizer_data(today),
+        "docs": _load_today_docs_data(today),
+        "briefing": _load_today_briefing_data(today),
+        "time": _load_today_time_data(today),
+        "health": _load_health_data(),
+    }
+
+    if output_format == "markdown":
+        body = _render_markdown(today, report_data)
+        path = get_reports_dir() / f"sysforge_report_{today.isoformat()}.md"
+    elif output_format == "html":
+        body = _render_html(today, report_data)
+        path = get_reports_dir() / f"sysforge_report_{today.isoformat()}.html"
+    else:
+        body = _render_text(today, report_data)
+        path = get_reports_dir() / f"sysforge_report_{today.isoformat()}.txt"
+
+    write_text_file(path, body)
+    return body, path
