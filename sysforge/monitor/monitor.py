@@ -267,6 +267,13 @@ def determine_levels(snapshot: dict[str, Any], thresholds: dict[str, Any]) -> di
     levels["disk"] = worst_disk_level
     return levels
 
+def overall_level(levels: dict[str, str]) -> str:
+    if "CRITICAL" in levels.values():
+        return "CRITICAL"
+    if "WARNING" in levels.values():
+        return "WARNING"
+    return "INFO"
+
 
 
 
