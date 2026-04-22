@@ -36,3 +36,9 @@ def test_level_for_percent() -> None:
     assert monitor_mod.level_for_percent(50, 80, 95) == "INFO"
     assert monitor_mod.level_for_percent(85, 80, 95) == "WARNING"
     assert monitor_mod.level_for_percent(96, 80, 95) == "CRITICAL"
+
+
+def test_overall_level() -> None:
+    assert monitor_mod.overall_level({"a": "INFO", "b": "WARNING"}) == "WARNING"
+    assert monitor_mod.overall_level({"a": "CRITICAL", "b": "WARNING"}) == "CRITICAL"
+    assert monitor_mod.overall_level({"a": "INFO"}) == "INFO"
