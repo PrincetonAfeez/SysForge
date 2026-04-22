@@ -276,3 +276,46 @@ def test_health_cli_help() -> None:
     assert result.exit_code == 0
     assert "CPU" in result.stdout or "health" in result.stdout.lower()
 
+
+def test_snapshot_system_single_pids_call_and_shape(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    top_kw: dict = {}
+
+    def fake_top(_psutil: object, *args: object, **kwargs: object) -> list:
+        top_kw.update(kwargs)
+        return [{"pid": 1, "name": "a", "cpu_percent": 0.0, "memory_percent": 0.0}]
+
+    class Part:
+        def __init__(self, device: str, mountpoint: str) -> None:
+            self.device = device
+            self.mountpoint = mountpoint
+
+    class U:
+        percent = 44.0
+        free = 1000
+        total = 2000
+
+    class Mem:
+        percent = 33.0
+        available = 500
+
+    fake_ps = MagicMock()
+    fake_ps.disk_partitions.return_value = [Part("dev0", "/")]
+    fake_ps.disk_usage.return_value = U()
+    fake_ps.virtual_memory.return_value = Mem()
+    fake_ps.boot_time.return_value = 1_700_000_000.0
+    fake_ps.cpu_percent.return_value = 12.5
+    fake_ps.pids.return_value = [101, 102, 103]
+
+    monkeypatch.setattr(monitor_mod, "load_psutil", lambda: fake_ps)
+    monkeypatch.setattr(monitor_mod, "top_processes", fake_top)
+    monkeypatch.setattr(monitor_mod.time, "time", lambda: 1_700_000_060.0)
+
+    snap = monitor_mod.snapshot_system(thresholds=_default_thresholds())
+    assert snap["process_count"] == 3
+    assert snap["cpu_percent"] == 12.5
+    assert snap["uptime_seconds"] == 60
+    assert snap["top_processes"][0]["name"] == "a"
+    assert top_kw.get("pids") == [101, 102, 103]
+    assert fake_ps.pids.call_count == 1
