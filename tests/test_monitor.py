@@ -181,3 +181,48 @@ def test_normalize_load_average() -> None:
     assert monitor_mod.normalize_load_average([0.1, 0.2, 0.3]) == [0.1, 0.2, 0.3]
     assert monitor_mod.normalize_load_average((1, 2)) is None
     assert monitor_mod.normalize_load_average("nope") is None
+
+def test_top_processes_samples_when_many_pids(monkeypatch: pytest.MonkeyPatch) -> None:
+    process_calls: list[int] = []
+
+    class _Mem:
+        def __init__(self, rss: int) -> None:
+            self.rss = rss
+
+    class FakeProc:
+        def __init__(self, pid: int) -> None:
+            self.pid = pid
+
+        def memory_info(self) -> _Mem:
+            return _Mem(self.pid * 1000)
+
+        def cpu_percent(self, interval: object = None) -> float:
+            return 0.1
+
+        def memory_percent(self) -> float:
+            return 0.2
+
+        def name(self) -> str:
+            return "fake"
+
+    class FakePsutil:
+        NoSuchProcess = Exception
+        AccessDenied = Exception
+
+        def pids(self) -> list[int]:
+            return list(range(500))
+
+        def Process(self, pid: int) -> FakeProc:
+            process_calls.append(pid)
+            return FakeProc(pid)
+
+    monkeypatch.setattr(monitor_mod.time, "sleep", lambda _s: None)
+    out = monitor_mod.top_processes(
+        FakePsutil(),
+        limit=3,
+        cpu_candidate_cap=10,
+        max_rss_scan=20,
+    )
+    assert len(process_calls) == 20
+    assert len(out) <= 3
+    assert all(isinstance(p["pid"], int) for p in out)
