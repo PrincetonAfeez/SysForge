@@ -299,16 +299,6 @@ def init(
     typer.echo(f"Created {output}")
 
 
-
-
-
-
-
-
-
-
-
-
 def main() -> None:
     app()
 
