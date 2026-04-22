@@ -42,3 +42,15 @@ def test_overall_level() -> None:
     assert monitor_mod.overall_level({"a": "INFO", "b": "WARNING"}) == "WARNING"
     assert monitor_mod.overall_level({"a": "CRITICAL", "b": "WARNING"}) == "CRITICAL"
     assert monitor_mod.overall_level({"a": "INFO"}) == "INFO"
+
+
+def test_determine_levels_tolerates_partial_snapshot() -> None:
+    th = _default_thresholds()
+    snap = {
+        "cpu_percent": 10.0,
+        "memory": {"percent": 20.0},
+        "disks": [{"percent": 30}],
+    }
+    levels = monitor_mod.determine_levels(snap, th)
+    assert set(levels.keys()) == {"cpu", "memory", "disk"}
+    assert all(v == "INFO" for v in levels.values())
