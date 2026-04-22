@@ -66,6 +66,15 @@ def normalize_load_average(raw: Any) -> list[float] | None:
     return None
 
 
+def load_rich_table_tools() -> Any:
+    try:
+        from rich.console import Console
+        from rich.table import Table
+
+        return Console, Table
+    except ModuleNotFoundError:
+        return None
+
 
 
 
