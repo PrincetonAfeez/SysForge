@@ -115,3 +115,14 @@ def test_determine_levels_disk_worst_mount_wins() -> None:
         == "CRITICAL"
     )
 
+def test_determine_levels_skips_bad_disk_entries() -> None:
+    th = _default_thresholds()
+    levels = monitor_mod.determine_levels(
+        {
+            "cpu_percent": 0,
+            "memory": {"percent": 0},
+            "disks": ["not-a-dict", {"percent": 10}],
+        },
+        th,
+    )
+    assert levels["disk"] == "INFO"
