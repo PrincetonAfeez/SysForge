@@ -370,6 +370,15 @@ def render_snapshot(snapshot: dict[str, Any]) -> None:
     console.print(process_table)
 
 
+def print_transitions(
+    previous_levels: dict[str, str] | None, current_levels: dict[str, str]
+) -> None:
+    if previous_levels is None:
+        return
+    for metric, level in current_levels.items():
+        if previous_levels.get(metric) != level:
+            typer.echo(f"{metric.upper()} changed from {previous_levels.get(metric)} to {level}")
+
 
 
 
