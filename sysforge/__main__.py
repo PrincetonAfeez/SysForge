@@ -19,6 +19,10 @@ from sysforge.timetracker.timetracker import app as time_app
 
 app = typer.Typer(help="SysForge: a developer operations toolkit.")
 
+def version_callback(value: bool) -> None:
+    if value:
+        typer.echo(__version__)
+        raise typer.Exit()
 
 
 
