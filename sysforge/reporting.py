@@ -38,3 +38,10 @@ def _load_today_organizer_data(today: date) -> dict[str, Any]:
         summary["bytes"] += file_summary.get("total_size_processed", 0)
 
     return summary
+
+
+def _load_today_docs_data(today: date) -> dict[str, Any]:
+    history = load_json_file(get_docs_history_file(), default=[])
+    runs = [item for item in history if item.get("timestamp", "").startswith(today.isoformat())]
+    file_count = sum(item.get("files_built", 0) for item in runs)
+    return {"runs": len(runs), "files_built": file_count}
