@@ -262,3 +262,10 @@ def test_health_cli_passes_options(tmp_path: Path, monkeypatch: pytest.MonkeyPat
     assert captured["interval"] == 5
     assert captured["config_path"] == cfg
 
+def test_health_cli_rejects_bad_interval(monkeypatch: pytest.MonkeyPatch) -> None:
+    run_monitor_mock = MagicMock()
+    monkeypatch.setattr(monitor_mod, "run_monitor", run_monitor_mock)
+    runner = CliRunner()
+    result = runner.invoke(monitor_mod.app, ["--interval", "0"])
+    assert result.exit_code != 0
+    run_monitor_mock.assert_not_called()
