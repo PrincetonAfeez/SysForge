@@ -306,6 +306,69 @@ def write_snapshot(snapshot: dict[str, Any], thresholds: dict[str, Any]) -> None
     write_json_file(get_latest_health_file(), snapshot, atomic=True)
 
 
+def render_snapshot(snapshot: dict[str, Any]) -> None:
+    rich_tools = load_rich_table_tools()
+    mem_raw = snapshot.get("memory")
+    mem: dict[str, Any] = mem_raw if isinstance(mem_raw, dict) else {}
+    disks = snapshot.get("disks")
+    if not isinstance(disks, list):
+        disks = []
+    top_procs = snapshot.get("top_processes")
+    if not isinstance(top_procs, list):
+        top_procs = []
+    if rich_tools is None:
+        typer.echo(f"CPU: {snapshot.get('cpu_percent', 0)}%")
+        typer.echo(f"Memory: {mem.get('percent', 0)}%")
+        typer.echo(f"Processes: {snapshot.get('process_count', 0)}")
+        typer.echo(f"Uptime: {format_duration(int(snapshot.get('uptime_seconds', 0) or 0))}")
+        typer.echo(f"Status: {snapshot.get('overall_level', 'INFO')}")
+        for disk in disks:
+            if not isinstance(disk, dict):
+                continue
+            typer.echo(
+                f"{disk.get('mountpoint', '')}: {disk.get('percent', 0)}% used "
+                f"({human_size(int(disk.get('free', 0) or 0))} free)"
+            )
+        return
+
+    Console, Table = rich_tools
+    console = Console()
+    table = Table(title=f"System Health ({snapshot.get('overall_level', 'INFO')})")
+    table.add_column("Metric")
+    table.add_column("Value")
+    table.add_row("CPU", f"{snapshot.get('cpu_percent', 0)}%")
+    table.add_row("Memory", f"{mem.get('percent', 0)}%")
+    table.add_row("Processes", str(snapshot.get("process_count", 0)))
+    table.add_row("Uptime", format_duration(int(snapshot.get("uptime_seconds", 0) or 0)))
+    if snapshot.get("load_average") is not None:
+        table.add_row("Load average", str(snapshot["load_average"]))
+
+    for disk in disks:
+        if not isinstance(disk, dict):
+            continue
+        table.add_row(
+            f"Disk {disk.get('mountpoint', '')}",
+            f"{disk.get('percent', 0)}% used / {human_size(int(disk.get('free', 0) or 0))} free",
+        )
+
+    console.print(table)
+
+    process_table = Table(title="Top Processes")
+    process_table.add_column("PID")
+    process_table.add_column("Name")
+    process_table.add_column("CPU %")
+    process_table.add_column("Memory %")
+    for process in top_procs:
+        if not isinstance(process, dict):
+            continue
+        process_table.add_row(
+            str(process.get("pid", "")),
+            str(process.get("name", "")),
+            str(process.get("cpu_percent", "")),
+            str(process.get("memory_percent", "")),
+        )
+    console.print(process_table)
+
 
 
 
