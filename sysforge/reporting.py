@@ -73,3 +73,17 @@ def _load_today_time_data(today: date) -> dict[str, Any]:
         "billable_total": round(total_billable, 2),
         "active_task": active_timer.get("task") if active_timer else None,
     }
+
+
+def _load_health_data() -> dict[str, Any]:
+    latest_path = get_latest_health_file()
+    if not latest_path.exists():
+        return {"status": "No health data yet"}
+    snapshot = load_json_file(latest_path, default={})
+    return {
+        "cpu_percent": snapshot.get("cpu_percent"),
+        "memory_percent": snapshot.get("memory", {}).get("percent"),
+        "disk_count": len(snapshot.get("disks", [])),
+        "process_count": snapshot.get("process_count"),
+        "status": snapshot.get("overall_level", "INFO"),
+    }
