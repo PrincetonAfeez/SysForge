@@ -31,6 +31,27 @@ def load_config_file(path: Path, *, apply_env: bool = True) -> dict[str, Any]:
         raise ValueError(f"Config file must contain a JSON object: {path}")
     return apply_environment_overrides(data) if apply_env else data
 
+def apply_environment_overrides(data: dict[str, Any]) -> dict[str, Any]:
+    updated = json.loads(json.dumps(data))
+    flattened = flatten_dict(data)
+    env_to_paths: dict[str, list[str]] = {}
+    for dotted_key in flattened:
+        env_key = f"APP_{dotted_key.replace('.', '_').upper()}"
+        env_to_paths.setdefault(env_key, []).append(dotted_key)
+    for env_key, paths in env_to_paths.items():
+        unique = sorted(set(paths))
+        if len(unique) > 1:
+            logger.warning(
+                "Multiple config paths map to the same env var %s: %s "
+                "(only one value can be set via the environment)",
+                env_key,
+                unique,
+            )
+    for dotted_key in flattened:
+        env_key = f"APP_{dotted_key.replace('.', '_').upper()}"
+        if env_key in os.environ:
+            set_nested_value(updated, dotted_key, parse_cli_value(os.environ[env_key]))
+    return cast(dict[str, Any], updated)
 
 
 
