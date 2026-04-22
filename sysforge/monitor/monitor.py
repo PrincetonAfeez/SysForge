@@ -98,6 +98,80 @@ def read_thresholds(config_path: Path | None = None) -> dict[str, Any]:
         "max_rss_scan": max(200, min(_coerce_threshold_int(raw.get("max_rss_scan"), 4000), 50_000)),
     }
 
+def top_processes(
+    psutil_module: Any,
+    limit: int = 5,
+    *,
+    cpu_candidate_cap: int = 80,
+    max_rss_scan: int = 4000,
+    pids: list[int] | None = None,
+) -> list[dict[str, Any]]:
+    cap = max(limit, min(cpu_candidate_cap, 500))
+    all_pids = list(pids) if pids is not None else psutil_module.pids()
+    total_pids = len(all_pids)
+    if total_pids > max_rss_scan:
+        logger.info(
+            "RSS ranking uses a random sample of %s of %s processes "
+            "(max_rss_scan=%s); top processes are approximate",
+            max_rss_scan,
+            total_pids,
+            max_rss_scan,
+        )
+        work_pids = random.sample(all_pids, max_rss_scan)
+    else:
+        work_pids = list(all_pids)
+
+    scored: list[tuple[int, Any]] = []
+    for pid in work_pids:
+        try:
+            proc = psutil_module.Process(pid)
+            mem_info = proc.memory_info()
+            rss = int(mem_info.rss) if mem_info else 0
+            scored.append((rss, proc))
+        except (psutil_module.NoSuchProcess, psutil_module.AccessDenied):
+            continue
+
+    scored.sort(key=lambda item: item[0], reverse=True)
+    candidates = [proc for _, proc in scored[:cap]]
+
+    for proc in candidates:
+        try:
+            proc.cpu_percent(interval=None)
+        except (psutil_module.NoSuchProcess, psutil_module.AccessDenied):
+            continue
+
+    time.sleep(0.1)
+
+    processes: list[dict[str, Any]] = []
+    for proc in candidates:
+        try:
+            memory_percent = round(proc.memory_percent(), 2)
+            cpu_p = round(proc.cpu_percent(interval=None), 2)
+            processes.append(
+                {
+                    "pid": proc.pid,
+                    "name": proc.name() or "unknown",
+                    "memory_percent": memory_percent,
+                    "cpu_percent": cpu_p,
+                }
+            )
+        except (psutil_module.NoSuchProcess, psutil_module.AccessDenied):
+            continue
+
+    processes.sort(key=lambda item: (item["memory_percent"], item["cpu_percent"]), reverse=True)
+    return processes[:limit]
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
