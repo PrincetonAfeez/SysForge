@@ -1,3 +1,5 @@
+"""Test deprecated markdown import shim."""
+
 from __future__ import annotations
 
 import importlib
@@ -8,6 +10,7 @@ import warnings
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
+
 
 def test_deprecated_markdown_import_emits_warning() -> None:
     code = (
@@ -32,7 +35,9 @@ def test_deprecated_markdown_import_emits_warning() -> None:
     assert proc.returncode == 0, proc.stdout + proc.stderr
     assert "deprecated" in proc.stderr.lower()
 
+
 def test_shim_module_aliases_real_module() -> None:
+    """In-process: second import should not warn again (warn-once)."""
     import sysforge.mdhtml.markdown as real
 
     with warnings.catch_warnings(record=True) as log:
