@@ -53,3 +53,15 @@ class _MarkdownPackageLoader(Loader):
         md_mod = importlib.import_module("sysforge.mdhtml.markdown")
         module.markdown = md_mod  # type: ignore[attr-defined]
         sys.modules["sysforge.markdown.markdown"] = md_mod
+
+
+class _MarkdownModuleLoader(Loader):
+
+    def create_module(self, spec: ModuleSpec) -> types.ModuleType | None:
+        import importlib
+
+        _SysforgeMarkdownAliasFinder._emit_deprecation()
+        return importlib.import_module("sysforge.mdhtml.markdown")
+
+    def exec_module(self, module: types.ModuleType) -> None:
+        return
