@@ -64,3 +64,11 @@ def test_validate_array_items_and_length() -> None:
     errors, merged = validate_against_schema([2, 5], schema)
     assert not errors
     assert merged == [2, 5]
+
+
+def test_diff_configs() -> None:
+    left = {"app": {"name": "a"}, "x": 1}
+    right = {"app": {"name": "b"}, "y": 2}
+    diff = diff_configs(left, right)
+    assert any("app.name" in line for line in diff["changed"])
+    assert any("x" in line for line in diff["removed"]) or any("x" in r for r in diff["removed"])
