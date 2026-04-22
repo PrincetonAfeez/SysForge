@@ -65,3 +65,9 @@ class _MarkdownModuleLoader(Loader):
 
     def exec_module(self, module: types.ModuleType) -> None:
         return
+
+def install_markdown_alias_finder() -> None:
+    finder = _SysforgeMarkdownAliasFinder
+    if finder in sys.meta_path:
+        return
+    sys.meta_path.insert(0, finder)
