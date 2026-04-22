@@ -274,6 +274,25 @@ def overall_level(levels: dict[str, str]) -> str:
         return "WARNING"
     return "INFO"
 
+def rotate_log_file(max_megabytes: int, keep_files: int) -> None:
+    log_path = get_health_log_file()
+    if not log_path.exists():
+        return
+
+    max_bytes = max_megabytes * 1024 * 1024
+    if log_path.stat().st_size < max_bytes:
+        return
+
+    for index in range(keep_files - 1, 0, -1):
+        older = log_path.with_name(f"{log_path.name}.{index}")
+        newer = log_path.with_name(f"{log_path.name}.{index + 1}")
+        if older.exists():
+            if index == keep_files - 1:
+                older.unlink()
+            else:
+                older.replace(newer)
+
+    log_path.replace(log_path.with_name(f"{log_path.name}.1"))
 
 
 
