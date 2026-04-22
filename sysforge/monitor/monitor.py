@@ -409,18 +409,18 @@ def run_monitor(watch: bool, interval: int, config_path: Path | None) -> None:
         typer.echo("Stopped watch mode.")
 
 
-
-
-
-
-
-
-
-
-
-
-
-
+@app.callback(invoke_without_command=True)
+def health(
+    ctx: typer.Context,
+    watch: bool = typer.Option(False, "--watch", help="Keep watching until Ctrl+C."),
+    interval: int = typer.Option(30, "--interval", help="Seconds between readings in watch mode."),
+    config: Path | None = typer.Option(None, "--config", help="Optional config file."),
+) -> None:
+    if ctx.invoked_subcommand:
+        return
+    if interval < 1:
+        print_error("--interval must be at least 1 second.")
+    run_monitor(watch=watch, interval=interval, config_path=config)
 
 
 def main() -> None:
