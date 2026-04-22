@@ -166,3 +166,12 @@ def test_read_thresholds_non_object_health(monkeypatch: pytest.MonkeyPatch) -> N
     monkeypatch.setattr(monitor_mod, "load_shared_config", lambda: {"health": "bad"})
     th = monitor_mod.read_thresholds()
     assert th["cpu_warning"] == 80
+
+def test_rotate_log_file(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    log = tmp_path / "health.jsonl"
+    monkeypatch.setattr(monitor_mod, "get_health_log_file", lambda: log)
+    log.write_bytes(b"0" * (2 * 1024 * 1024))
+    monitor_mod.rotate_log_file(1, 5)
+    assert log.with_name("health.jsonl.1").exists()
+
+
