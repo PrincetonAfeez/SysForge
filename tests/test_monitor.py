@@ -142,3 +142,22 @@ def test_print_transitions_none_previous_is_silent(
     monitor_mod.print_transitions(None, {"cpu": "WARNING"})
     assert capsys.readouterr().out == ""
 
+
+def test_read_thresholds_coerces_strings(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr(
+        monitor_mod,
+        "load_shared_config",
+        lambda: {
+            "health": {
+                "cpu_warning": "70",
+                "keep_files": "3",
+                "top_process_scan": "100",
+                "max_rss_scan": "3000",
+            }
+        },
+    )
+    th = monitor_mod.read_thresholds()
+    assert th["cpu_warning"] == 70
+    assert th["keep_files"] == 3
+    assert th["top_process_scan"] == 100
+    assert th["max_rss_scan"] == 3000
