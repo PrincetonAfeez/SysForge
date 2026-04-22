@@ -182,6 +182,24 @@ def get(
         typer.echo(value)
 
 
+@app.command(name="set")
+def set_value(
+    key: str = typer.Argument(..., help="Dot-notation key, like database.port"),
+    value: str = typer.Argument(..., help="Value to write"),
+    file: Path = typer.Option(..., "--file", help="JSON config file"),
+) -> None:
+    ensure_home_layout()
+    try:
+        data = load_config_file(file, apply_env=False) if file.exists() else {}
+        set_nested_value(data, key, parse_cli_value(value))
+        write_json_file(file, data, atomic=True, backup=True)
+    except ValueError as exc:
+        print_error(str(exc))
+    except (JSONDecodeError, OSError, TypeError) as exc:
+        print_error(str(exc), exit_code=2)
+
+    logger.info("Set config key %s in %s", key, file)
+    typer.echo(f"Updated {key} in {file}")
 
 
 
