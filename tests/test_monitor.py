@@ -126,3 +126,11 @@ def test_determine_levels_skips_bad_disk_entries() -> None:
         th,
     )
     assert levels["disk"] == "INFO"
+
+def test_print_transitions_emits_on_change(capsys: pytest.CaptureFixture[str]) -> None:
+    monitor_mod.print_transitions(
+        {"cpu": "INFO", "memory": "INFO"},
+        {"cpu": "WARNING", "memory": "INFO"},
+    )
+    out = capsys.readouterr().out
+    assert "CPU" in out and "WARNING" in out
