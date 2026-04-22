@@ -280,6 +280,23 @@ def diff(
         else:
             typer.echo("- none")
 
+@app.command()
+def init(
+    template: str = typer.Option(
+        ..., "--template", help="Template name in sysforge/config/templates"
+    ),
+    output: Path = typer.Option(Path("app.json"), "--output", help="Where to write the new file"),
+) -> None:
+    ensure_home_layout()
+    source_template = template_path_for_name(template)
+    try:
+        output.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(source_template, output)
+    except (OSError, shutil.Error) as exc:
+        print_error(str(exc), exit_code=2)
+
+    logger.info("Initialized config file %s from template %s", output, template)
+    typer.echo(f"Created {output}")
 
 
 
