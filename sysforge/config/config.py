@@ -258,6 +258,27 @@ def validate(
             write_json_file(file, validated_data, atomic=True)
             typer.echo(f"Wrote merged config to {file}")
 
+@app.command()
+def diff(
+    left_file: Path = typer.Argument(..., help="First config file"),
+    right_file: Path = typer.Argument(..., help="Second config file"),
+) -> None:
+    try:
+        left = load_config_file(left_file, apply_env=False)
+        right = load_config_file(right_file, apply_env=False)
+    except FileNotFoundError as exc:
+        print_error(str(exc), exit_code=2)
+    except (ValueError, JSONDecodeError, OSError, TypeError) as exc:
+        print_error(str(exc), exit_code=2)
+
+    differences = diff_configs(left, right)
+    for section in ("added", "removed", "changed"):
+        typer.echo(section.upper())
+        if differences[section]:
+            for line in differences[section]:
+                typer.echo(f"- {line}")
+        else:
+            typer.echo("- none")
 
 
 
