@@ -319,3 +319,38 @@ def test_snapshot_system_single_pids_call_and_shape(
     assert snap["top_processes"][0]["name"] == "a"
     assert top_kw.get("pids") == [101, 102, 103]
     assert fake_ps.pids.call_count == 1
+
+
+def test_write_snapshot_sets_levels_and_appends(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    jsonl_calls: list[tuple] = []
+    write_calls: list[tuple] = []
+
+    monkeypatch.setattr(monitor_mod, "get_health_log_file", lambda: tmp_path / "h.jsonl")
+    monkeypatch.setattr(monitor_mod, "get_latest_health_file", lambda: tmp_path / "latest.json")
+    monkeypatch.setattr(monitor_mod, "rotate_log_file", lambda *a, **k: None)
+    monkeypatch.setattr(
+        monitor_mod,
+        "append_json_line",
+        lambda path, data: jsonl_calls.append((path, dict(data))),
+    )
+    monkeypatch.setattr(
+        monitor_mod,
+        "write_json_file",
+        lambda path, data, atomic=True: write_calls.append((path, dict(data))),
+    )
+
+    snap: dict = {
+        "cpu_percent": 96.0,
+        "memory": {"percent": 50.0},
+        "disks": [{"percent": 30.0}],
+    }
+    th = _default_thresholds()
+    monitor_mod.write_snapshot(snap, th)
+
+    assert snap["levels"]["cpu"] == "CRITICAL"
+    assert snap["overall_level"] == "CRITICAL"
+    assert jsonl_calls and jsonl_calls[0][1]["overall_level"] == "CRITICAL"
+    assert write_calls and write_calls[0][1]["levels"]["cpu"] == "CRITICAL"
