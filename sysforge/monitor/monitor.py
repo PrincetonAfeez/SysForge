@@ -228,6 +228,44 @@ def level_for_percent(percent: float, warning: int, critical: int) -> str:
     return "INFO"
 
 
+def determine_levels(snapshot: dict[str, Any], thresholds: dict[str, Any]) -> dict[str, str]:
+    cpu_pct = float(snapshot.get("cpu_percent", 0.0) or 0.0)
+    mem_raw = snapshot.get("memory")
+    mem: dict[str, Any] = mem_raw if isinstance(mem_raw, dict) else {}
+    mem_pct = float(mem.get("percent", 0.0) or 0.0)
+    levels = {
+        "cpu": level_for_percent(
+            cpu_pct,
+            thresholds.get("cpu_warning", 80),
+            thresholds.get("cpu_critical", 95),
+        ),
+        "memory": level_for_percent(
+            mem_pct,
+            thresholds.get("memory_warning", 90),
+            thresholds.get("memory_critical", 97),
+        ),
+    }
+
+    worst_disk_level = "INFO"
+    disks = snapshot.get("disks")
+    if not isinstance(disks, list):
+        disks = []
+    for disk in disks:
+        if not isinstance(disk, dict):
+            continue
+        disk_pct = float(disk.get("percent", 0.0) or 0.0)
+        disk_level = level_for_percent(
+            disk_pct,
+            thresholds.get("disk_warning", 80),
+            thresholds.get("disk_critical", 95),
+        )
+        if disk_level == "CRITICAL":
+            worst_disk_level = "CRITICAL"
+            break
+        if disk_level == "WARNING":
+            worst_disk_level = "WARNING"
+    levels["disk"] = worst_disk_level
+    return levels
 
 
 
