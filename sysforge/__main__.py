@@ -73,25 +73,28 @@ def root(
     logger = get_logger("sysforge")
     logger.debug("SysForge CLI started")
 
+@app.command()
+def report(
+    format: str | None = typer.Option(None, "--format", help="text, markdown, or html"),
+) -> None:
+    config = load_shared_config()
+    chosen_format = format or config.get("report", {}).get("default_format", "text")
+    if chosen_format not in {"text", "markdown", "html"}:
+        typer.secho("--format must be text, markdown, or html.", fg=typer.colors.RED, err=True)
+        raise typer.Exit(code=1)
+
+    content, output_path = build_daily_report(chosen_format)
+    typer.echo(content)
+    typer.echo("")
+    typer.echo(f"Saved report to {output_path}")
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+app.add_typer(organizer_app, name="organize")
+app.add_typer(markdown_app, name="docs")
+app.add_typer(briefing_app, name="briefing")
+app.add_typer(time_app, name="time")
+app.add_typer(config_app, name="config")
+app.add_typer(monitor_app, name="health")
 
 
 def main() -> None:
