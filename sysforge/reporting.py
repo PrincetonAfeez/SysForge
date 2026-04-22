@@ -1,3 +1,5 @@
+""" Daily reporting system """
+
 from __future__ import annotations
 
 from datetime import date, datetime
@@ -46,6 +48,7 @@ def _load_today_docs_data(today: date) -> dict[str, Any]:
     file_count = sum(item.get("files_built", 0) for item in runs)
     return {"runs": len(runs), "files_built": file_count}
 
+
 def _load_today_briefing_data(today: date) -> dict[str, Any]:
     history = load_json_file(get_briefing_history_file(), default=[])
     today_runs = [
@@ -56,6 +59,7 @@ def _load_today_briefing_data(today: date) -> dict[str, Any]:
         "runs": len(today_runs),
         "latest_file": latest.get("output_file") if latest else "No briefing today",
     }
+
 
 def _load_today_time_data(today: date) -> dict[str, Any]:
     data = load_json_file(get_timesheet_file(), default={"entries": [], "active_timer": None})
@@ -87,6 +91,7 @@ def _load_health_data() -> dict[str, Any]:
         "process_count": snapshot.get("process_count"),
         "status": snapshot.get("overall_level", "INFO"),
     }
+
 
 def _render_text(today: date, report_data: dict[str, Any]) -> str:
     organizer = report_data["organizer"]
@@ -194,6 +199,7 @@ def _render_html(today: date, report_data: dict[str, Any]) -> str:
         "</body>\n"
         "</html>\n"
     )
+
 
 def build_daily_report(output_format: str = "text") -> tuple[str, Path]:
     today = datetime.now().date()
