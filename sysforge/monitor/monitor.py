@@ -295,6 +295,15 @@ def rotate_log_file(max_megabytes: int, keep_files: int) -> None:
     log_path.replace(log_path.with_name(f"{log_path.name}.1"))
 
 
+def write_snapshot(snapshot: dict[str, Any], thresholds: dict[str, Any]) -> None:
+    rotate_mb = max(1, _coerce_threshold_int(thresholds.get("rotate_mb"), 10))
+    keep_files = max(1, min(_coerce_threshold_int(thresholds.get("keep_files"), 5), 50))
+    rotate_log_file(rotate_mb, keep_files)
+    levels = determine_levels(snapshot, thresholds)
+    snapshot["levels"] = levels
+    snapshot["overall_level"] = overall_level(levels)
+    append_json_line(get_health_log_file(), snapshot)
+    write_json_file(get_latest_health_file(), snapshot, atomic=True)
 
 
 
