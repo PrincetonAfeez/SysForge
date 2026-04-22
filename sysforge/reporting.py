@@ -165,3 +165,33 @@ def _render_markdown(today: date, report_data: dict[str, Any]) -> str:
             f"- Processes: {health.get('process_count', 'n/a')}",
         ]
     )
+
+
+def _render_html(today: date, report_data: dict[str, Any]) -> str:
+    markdown_version = _render_markdown(today, report_data)
+    body_html = markdown.markdown(
+        markdown_version,
+        extensions=["extra"],
+        output_format="html",
+    )
+    title = escape(f"SysForge Daily Report - {today.isoformat()}")
+    return (
+        "<!DOCTYPE html>\n"
+        '<html lang="en">\n'
+        "<head>\n"
+        '  <meta charset="utf-8">\n'
+        f"  <title>{title}</title>\n"
+        "  <style>"
+        "body{font-family:Arial,sans-serif;max-width:900px;margin:2rem auto;line-height:1.6;}"
+        "pre,code{background:#f5f5f5;padding:0.2rem 0.4rem;border-radius:4px;}"
+        "pre{padding:1rem;white-space:pre-wrap;}"
+        "table{border-collapse:collapse;width:100%;}"
+        "th,td{border:1px solid #ddd;padding:0.4rem 0.6rem;text-align:left;}"
+        "</style>\n"
+        "</head>\n"
+        "<body>\n"
+        f'  <article class="sysforge-report">{body_html}</article>\n'
+        "</body>\n"
+        "</html>\n"
+    )
+
