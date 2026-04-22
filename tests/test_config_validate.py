@@ -31,3 +31,13 @@ def test_validate_object_required_and_defaults() -> None:
     assert merged["name"] == "ok"
     assert merged["count"] == 0
 
+def test_validate_min_max_enum() -> None:
+    schema = {"type": "integer", "min": 1, "max": 3, "enum": [1, 2, 3]}
+    errors, _ = validate_against_schema(0, schema)
+    assert any("min" in e for e in errors)
+
+    errors, _ = validate_against_schema(5, schema)
+    assert any("max" in e for e in errors)
+
+    errors, _ = validate_against_schema(2, schema)
+    assert not errors
