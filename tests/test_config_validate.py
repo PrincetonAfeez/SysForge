@@ -72,3 +72,10 @@ def test_diff_configs() -> None:
     diff = diff_configs(left, right)
     assert any("app.name" in line for line in diff["changed"])
     assert any("x" in line for line in diff["removed"]) or any("x" in r for r in diff["removed"])
+
+
+def test_apply_environment_duplicate_path_mapping() -> None:
+    data = {"a": {"b": 1}, "a_b": 2}
+    out = apply_environment_overrides(data)
+    assert isinstance(out, dict)
+    assert out["a"]["b"] == 1 and out["a_b"] == 2
