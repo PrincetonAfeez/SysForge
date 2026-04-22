@@ -46,3 +46,21 @@ def test_validate_type_mismatch() -> None:
     schema = {"type": "string"}
     errors, _ = validate_against_schema(99, schema)
     assert errors
+
+
+def test_validate_array_items_and_length() -> None:
+    schema = {
+        "type": "array",
+        "items": {"type": "integer", "min": 1, "max": 10},
+        "minItems": 2,
+        "maxItems": 3,
+    }
+    errors, _ = validate_against_schema([1], schema)
+    assert any("minItems" in e for e in errors)
+
+    errors, _ = validate_against_schema([1, 2, 3, 4], schema)
+    assert any("maxItems" in e for e in errors)
+
+    errors, merged = validate_against_schema([2, 5], schema)
+    assert not errors
+    assert merged == [2, 5]
