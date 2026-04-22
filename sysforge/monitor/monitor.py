@@ -75,6 +75,29 @@ def load_rich_table_tools() -> Any:
     except ModuleNotFoundError:
         return None
 
+def read_thresholds(config_path: Path | None = None) -> dict[str, Any]:
+    if config_path is not None:
+        config = load_config_file(config_path, apply_env=False)
+    else:
+        config = load_shared_config()
+    raw = config.get("health", {})
+    if not isinstance(raw, dict):
+        raw = {}
+    return {
+        "cpu_warning": _coerce_threshold_int(raw.get("cpu_warning"), 80),
+        "cpu_critical": _coerce_threshold_int(raw.get("cpu_critical"), 95),
+        "memory_warning": _coerce_threshold_int(raw.get("memory_warning"), 90),
+        "memory_critical": _coerce_threshold_int(raw.get("memory_critical"), 97),
+        "disk_warning": _coerce_threshold_int(raw.get("disk_warning"), 80),
+        "disk_critical": _coerce_threshold_int(raw.get("disk_critical"), 95),
+        "rotate_mb": _coerce_threshold_int(raw.get("rotate_mb"), 10),
+        "keep_files": max(1, min(_coerce_threshold_int(raw.get("keep_files"), 5), 50)),
+        "top_process_scan": max(
+            20, min(_coerce_threshold_int(raw.get("top_process_scan"), 80), 500)
+        ),
+        "max_rss_scan": max(200, min(_coerce_threshold_int(raw.get("max_rss_scan"), 4000), 50_000)),
+    }
+
 
 
 
