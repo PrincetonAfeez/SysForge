@@ -217,6 +217,47 @@ def list_keys(
         typer.echo(f"{key} = {value!r}")
 
 
+@app.command()
+def validate(
+    file: Path = typer.Argument(..., help="Config file to validate"),
+    schema: Path = typer.Option(
+        ...,
+        "--schema",
+        help=(
+            "Schema file (subset: type, properties, required, default, min/max, enum, "
+            "array items, minItems/maxItems)."
+        ),
+    ),
+    write_defaults: bool = typer.Option(
+        False,
+        "--write-defaults",
+        help=(
+            "After successful validation, write merged defaults (and normalized values) "
+            "back to the config file."
+        ),
+    ),
+) -> None:
+    try:
+        data = load_config_file(file, apply_env=False)
+        schema_data = load_json_file(schema, default={})
+    except FileNotFoundError as exc:
+        print_error(str(exc), exit_code=2)
+    except (ValueError, JSONDecodeError, OSError, TypeError) as exc:
+        print_error(str(exc), exit_code=2)
+
+    errors, validated_data = validate_against_schema(data, schema_data)
+    if errors:
+        for error in errors:
+            typer.echo(error)
+        raise typer.Exit(code=1)
+
+    typer.echo("Validation passed.")
+    if validated_data != data:
+        typer.echo("Defaults were applied in memory during validation.")
+        if write_defaults:
+            write_json_file(file, validated_data, atomic=True)
+            typer.echo(f"Wrote merged config to {file}")
+
 
 
 
