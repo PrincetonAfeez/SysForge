@@ -155,6 +155,12 @@ def diff_configs(left: dict[str, Any], right: dict[str, Any]) -> dict[str, list[
     return {"added": added, "removed": removed, "changed": changed}
 
 
+def template_path_for_name(name: str) -> Path:
+    template_path = PACKAGE_ROOT / "config" / "templates" / f"{name}.json"
+    if not template_path.exists():
+        print_error(f"Template not found: {name}")
+    return template_path
+
 
 
 
