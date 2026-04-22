@@ -41,3 +41,8 @@ def test_validate_min_max_enum() -> None:
 
     errors, _ = validate_against_schema(2, schema)
     assert not errors
+
+def test_validate_type_mismatch() -> None:
+    schema = {"type": "string"}
+    errors, _ = validate_against_schema(99, schema)
+    assert errors
