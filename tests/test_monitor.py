@@ -226,3 +226,17 @@ def test_top_processes_samples_when_many_pids(monkeypatch: pytest.MonkeyPatch) -
     assert len(process_calls) == 20
     assert len(out) <= 3
     assert all(isinstance(p["pid"], int) for p in out)
+
+def test_health_cli_invokes_run_monitor(monkeypatch: pytest.MonkeyPatch) -> None:
+    captured: dict[str, object] = {}
+
+    def fake_run_monitor(*, watch: bool, interval: int, config_path: Path | None) -> None:
+        captured["watch"] = watch
+        captured["interval"] = interval
+        captured["config_path"] = config_path
+
+    monkeypatch.setattr(monitor_mod, "run_monitor", fake_run_monitor)
+    runner = CliRunner()
+    result = runner.invoke(monitor_mod.app, [])
+    assert result.exit_code == 0
+    assert captured == {"watch": False, "interval": 30, "config_path": None}
