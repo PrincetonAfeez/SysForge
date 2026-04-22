@@ -240,3 +240,25 @@ def test_health_cli_invokes_run_monitor(monkeypatch: pytest.MonkeyPatch) -> None
     result = runner.invoke(monitor_mod.app, [])
     assert result.exit_code == 0
     assert captured == {"watch": False, "interval": 30, "config_path": None}
+
+def test_health_cli_passes_options(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    captured: dict[str, object] = {}
+
+    def fake_run_monitor(*, watch: bool, interval: int, config_path: Path | None) -> None:
+        captured["watch"] = watch
+        captured["interval"] = interval
+        captured["config_path"] = config_path
+
+    monkeypatch.setattr(monitor_mod, "run_monitor", fake_run_monitor)
+    cfg = tmp_path / "health.json"
+    cfg.write_text("{}", encoding="utf-8")
+    runner = CliRunner()
+    result = runner.invoke(
+        monitor_mod.app,
+        ["--watch", "--interval", "5", "--config", str(cfg)],
+    )
+    assert result.exit_code == 0
+    assert captured["watch"] is True
+    assert captured["interval"] == 5
+    assert captured["config_path"] == cfg
+
