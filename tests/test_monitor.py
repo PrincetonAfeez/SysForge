@@ -134,3 +134,11 @@ def test_print_transitions_emits_on_change(capsys: pytest.CaptureFixture[str]) -
     )
     out = capsys.readouterr().out
     assert "CPU" in out and "WARNING" in out
+
+
+def test_print_transitions_none_previous_is_silent(
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    monitor_mod.print_transitions(None, {"cpu": "WARNING"})
+    assert capsys.readouterr().out == ""
+
