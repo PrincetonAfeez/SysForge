@@ -87,3 +87,42 @@ def _load_health_data() -> dict[str, Any]:
         "process_count": snapshot.get("process_count"),
         "status": snapshot.get("overall_level", "INFO"),
     }
+
+def _render_text(today: date, report_data: dict[str, Any]) -> str:
+    organizer = report_data["organizer"]
+    docs = report_data["docs"]
+    briefing = report_data["briefing"]
+    time_data = report_data["time"]
+    health = report_data["health"]
+
+    lines = [
+        f"SysForge Daily Report - {today.isoformat()}",
+        "",
+        "Files organized",
+        f"  Runs: {organizer['runs']}",
+        f"  Moved: {organizer['moved']}",
+        f"  Skipped: {organizer['skipped']}",
+        f"  Errors: {organizer['errors']}",
+        f"  Data touched: {human_size(organizer['bytes'])}",
+        "",
+        "Documentation builds",
+        f"  Runs: {docs['runs']}",
+        f"  HTML files built: {docs['files_built']}",
+        "",
+        "Briefings",
+        f"  Runs today: {briefing['runs']}",
+        f"  Latest file: {briefing['latest_file']}",
+        "",
+        "Time tracked",
+        f"  Total today: {time_data['duration']}",
+        f"  Billable total: ${time_data['billable_total']:.2f}",
+        f"  Active task: {time_data['active_task'] or 'None'}",
+        "",
+        "System health",
+        f"  Status: {health['status']}",
+        f"  CPU: {health.get('cpu_percent', 'n/a')}",
+        f"  Memory: {health.get('memory_percent', 'n/a')}",
+        f"  Processes: {health.get('process_count', 'n/a')}",
+    ]
+    return "\n".join(lines)
+
