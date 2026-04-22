@@ -45,3 +45,14 @@ def _load_today_docs_data(today: date) -> dict[str, Any]:
     runs = [item for item in history if item.get("timestamp", "").startswith(today.isoformat())]
     file_count = sum(item.get("files_built", 0) for item in runs)
     return {"runs": len(runs), "files_built": file_count}
+
+def _load_today_briefing_data(today: date) -> dict[str, Any]:
+    history = load_json_file(get_briefing_history_file(), default=[])
+    today_runs = [
+        item for item in history if item.get("timestamp", "").startswith(today.isoformat())
+    ]
+    latest = today_runs[-1] if today_runs else None
+    return {
+        "runs": len(today_runs),
+        "latest_file": latest.get("output_file") if latest else "No briefing today",
+    }
