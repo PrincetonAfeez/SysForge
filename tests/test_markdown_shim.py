@@ -31,3 +31,12 @@ def test_deprecated_markdown_import_emits_warning() -> None:
     )
     assert proc.returncode == 0, proc.stdout + proc.stderr
     assert "deprecated" in proc.stderr.lower()
+
+def test_shim_module_aliases_real_module() -> None:
+    import sysforge.mdhtml.markdown as real
+
+    with warnings.catch_warnings(record=True) as log:
+        warnings.simplefilter("always")
+        legacy = importlib.import_module("sysforge.markdown.markdown")
+        assert legacy is real
+        assert any(isinstance(w.message, DeprecationWarning) for w in log)
