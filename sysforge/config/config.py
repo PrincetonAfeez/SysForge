@@ -202,6 +202,19 @@ def set_value(
     typer.echo(f"Updated {key} in {file}")
 
 
+@app.command("list")
+def list_keys(
+    file: Path = typer.Option(..., "--file", help="JSON config file"),
+) -> None:
+    try:
+        data = load_config_file(file)
+    except FileNotFoundError:
+        print_error(f"Config file not found: {file}", exit_code=2)
+    except (ValueError, JSONDecodeError, OSError, TypeError) as exc:
+        print_error(str(exc), exit_code=2)
+
+    for key, value in sorted(flatten_dict(data).items()):
+        typer.echo(f"{key} = {value!r}")
 
 
 
