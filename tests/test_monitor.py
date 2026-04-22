@@ -32,3 +32,7 @@ def test_coerce_threshold_int() -> None:
     assert monitor_mod._coerce_threshold_int("nope", 10) == 10
 
 
+def test_level_for_percent() -> None:
+    assert monitor_mod.level_for_percent(50, 80, 95) == "INFO"
+    assert monitor_mod.level_for_percent(85, 80, 95) == "WARNING"
+    assert monitor_mod.level_for_percent(96, 80, 95) == "CRITICAL"
