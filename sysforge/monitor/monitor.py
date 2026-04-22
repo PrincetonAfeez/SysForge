@@ -162,6 +162,63 @@ def top_processes(
     return processes[:limit]
 
 
+def snapshot_system(thresholds: dict[str, Any] | None = None) -> dict[str, Any]:
+    th = thresholds if thresholds is not None else read_thresholds()
+    psutil = load_psutil()
+    all_pids = psutil.pids()
+    disks = []
+    disk_all = sys.platform != "win32"
+    for partition in psutil.disk_partitions(all=disk_all):
+        try:
+            usage = psutil.disk_usage(partition.mountpoint)
+        except PermissionError:
+            continue
+        disks.append(
+            {
+                "device": partition.device,
+                "mountpoint": partition.mountpoint,
+                "percent": usage.percent,
+                "free": usage.free,
+                "total": usage.total,
+            }
+        )
+
+    load_average_raw = None
+    if hasattr(os, "getloadavg"):
+        try:
+            load_average_raw = os.getloadavg()
+        except OSError:
+            load_average_raw = None
+    load_average = normalize_load_average(load_average_raw)
+
+    memory = psutil.virtual_memory()
+    boot_time = psutil.boot_time()
+    snapshot = {
+        "timestamp": datetime.now().isoformat(),
+        "cpu_percent": psutil.cpu_percent(interval=0.2),
+        "memory": {
+            "percent": memory.percent,
+            "available": memory.available,
+        },
+        "disks": disks,
+        "process_count": len(all_pids),
+        "boot_time": datetime.fromtimestamp(boot_time).isoformat(),
+        "uptime_seconds": int(time.time() - boot_time),
+        "load_average": load_average,
+        "platform": {
+            "system": sys.platform,
+            "load_average_available": load_average is not None,
+            "disk_partitions_all": disk_all,
+        },
+        "top_processes": top_processes(
+            psutil,
+            limit=5,
+            cpu_candidate_cap=int(th.get("top_process_scan", 80)),
+            max_rss_scan=int(th.get("max_rss_scan", 4000)),
+            pids=all_pids,
+        ),
+    }
+    return snapshot
 
 
 
