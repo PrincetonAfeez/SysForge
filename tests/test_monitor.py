@@ -23,3 +23,12 @@ def _default_thresholds() -> dict:
         "max_rss_scan": 4000,
     }
 
+def test_coerce_threshold_int() -> None:
+    assert monitor_mod._coerce_threshold_int(None, 10) == 10
+    assert monitor_mod._coerce_threshold_int(42, 10) == 42
+    assert monitor_mod._coerce_threshold_int("75", 10) == 75
+    assert monitor_mod._coerce_threshold_int("3.2", 10) == 3
+    assert monitor_mod._coerce_threshold_int(True, 10) == 10
+    assert monitor_mod._coerce_threshold_int("nope", 10) == 10
+
+
