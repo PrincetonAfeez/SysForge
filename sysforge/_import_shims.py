@@ -1,3 +1,5 @@
+"""Compatibility import hooks (see README.md, Changelog)."""
+
 from __future__ import annotations
 
 import importlib.util
@@ -8,8 +10,8 @@ from importlib.abc import Loader, MetaPathFinder
 from importlib.machinery import ModuleSpec
 
 
-
 class _SysforgeMarkdownAliasFinder(MetaPathFinder):
+    """Serve deprecated ``sysforge.markdown`` imports from ``sysforge.mdhtml``."""
 
     _warned = False
 
@@ -42,6 +44,7 @@ class _SysforgeMarkdownAliasFinder(MetaPathFinder):
             )
         return None
 
+
 class _MarkdownPackageLoader(Loader):
     def create_module(self, spec: ModuleSpec) -> types.ModuleType | None:
         return types.ModuleType(spec.name)
@@ -56,6 +59,7 @@ class _MarkdownPackageLoader(Loader):
 
 
 class _MarkdownModuleLoader(Loader):
+    """Loaded when ``sysforge.markdown`` package was not initialized first (edge case)."""
 
     def create_module(self, spec: ModuleSpec) -> types.ModuleType | None:
         import importlib
@@ -65,6 +69,7 @@ class _MarkdownModuleLoader(Loader):
 
     def exec_module(self, module: types.ModuleType) -> None:
         return
+
 
 def install_markdown_alias_finder() -> None:
     finder = _SysforgeMarkdownAliasFinder
