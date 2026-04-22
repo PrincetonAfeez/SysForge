@@ -42,3 +42,14 @@ class _SysforgeMarkdownAliasFinder(MetaPathFinder):
             )
         return None
 
+class _MarkdownPackageLoader(Loader):
+    def create_module(self, spec: ModuleSpec) -> types.ModuleType | None:
+        return types.ModuleType(spec.name)
+
+    def exec_module(self, module: types.ModuleType) -> None:
+        _SysforgeMarkdownAliasFinder._emit_deprecation()
+        import importlib
+
+        md_mod = importlib.import_module("sysforge.mdhtml.markdown")
+        module.markdown = md_mod  # type: ignore[attr-defined]
+        sys.modules["sysforge.markdown.markdown"] = md_mod
