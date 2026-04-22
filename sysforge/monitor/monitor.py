@@ -30,6 +30,21 @@ app = typer.Typer(help="Check CPU, memory, disks, and uptime.")
 logger = get_logger("sysforge.monitor")
 
 
+def _coerce_threshold_int(value: Any, default: int) -> int:
+    if value is None:
+        return default
+    if isinstance(value, bool):
+        return default
+    if isinstance(value, int):
+        return value
+    if isinstance(value, float):
+        return int(round(value))
+    if isinstance(value, str):
+        try:
+            return int(float(value.strip()))
+        except ValueError:
+            return default
+    return default
 
 
 
