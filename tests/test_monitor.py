@@ -89,3 +89,29 @@ def test_determine_levels_memory_warning_and_critical() -> None:
         == "CRITICAL"
     )
 
+
+def test_determine_levels_disk_worst_mount_wins() -> None:
+    th = _default_thresholds()
+    assert (
+        monitor_mod.determine_levels(
+            {
+                "cpu_percent": 10.0,
+                "memory": {"percent": 10.0},
+                "disks": [{"percent": 50.0}, {"percent": 85.0}],
+            },
+            th,
+        )["disk"]
+        == "WARNING"
+    )
+    assert (
+        monitor_mod.determine_levels(
+            {
+                "cpu_percent": 10.0,
+                "memory": {"percent": 10.0},
+                "disks": [{"percent": 85.0}, {"percent": 96.0}],
+            },
+            th,
+        )["disk"]
+        == "CRITICAL"
+    )
+
