@@ -68,6 +68,62 @@ def validate_type(value: Any, expected_type: str) -> bool:
         return isinstance(value, list)
     return True
 
+def validate_against_schema(
+    value: Any,
+    schema: dict[str, Any],
+    key_path: str = "root",
+) -> tuple[list[str], Any]:
+    errors: list[str] = []
+
+    expected_type = schema.get("type")
+    if expected_type and not validate_type(value, expected_type):
+        errors.append(f"{key_path}: expected {expected_type}, got {type(value).__name__}")
+        return errors, value
+
+    if expected_type == "object":
+        properties = schema.get("properties", {})
+        required_keys = schema.get("required", [])
+
+        for required_key in required_keys:
+            if required_key not in value:
+                errors.append(f"{key_path}.{required_key}: missing required key")
+
+        updated_value = dict(value)
+        for child_key, child_schema in properties.items():
+            child_path = f"{key_path}.{child_key}"
+            if child_key not in updated_value:
+                if "default" in child_schema:
+                    updated_value[child_key] = child_schema["default"]
+                continue
+            child_errors, child_value = validate_against_schema(
+                updated_value[child_key], child_schema, child_path
+            )
+            updated_value[child_key] = child_value
+            errors.extend(child_errors)
+        return errors, updated_value
+
+    if expected_type == "array":
+        items_schema = schema.get("items")
+        min_items = schema.get("minItems")
+        max_items = schema.get("maxItems")
+        if min_items is not None and len(value) < min_items:
+            errors.append(
+                f"{key_path}: array length {len(value)} is less than minItems {min_items}"
+            )
+        if max_items is not None and len(value) > max_items:
+            errors.append(
+                f"{key_path}: array length {len(value)} is greater than maxItems {max_items}"
+            )
+        updated_list: list[Any] = []
+        for index, item in enumerate(value):
+            child_path = f"{key_path}[{index}]"
+            if items_schema is not None:
+                child_errors, child_value = validate_against_schema(item, items_schema, child_path)
+                errors.extend(child_errors)
+                updated_list.append(child_value)
+            else:
+                updated_list.append(item)
+        return errors, updated_list
 
 
 
