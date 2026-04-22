@@ -25,6 +25,11 @@ app = typer.Typer(help="Manage JSON configuration files.")
 logger = get_logger("sysforge.config")
 
 
+def load_config_file(path: Path, *, apply_env: bool = True) -> dict[str, Any]:
+    data = load_json_file(path)
+    if not isinstance(data, dict):
+        raise ValueError(f"Config file must contain a JSON object: {path}")
+    return apply_environment_overrides(data) if apply_env else data
 
 
 
