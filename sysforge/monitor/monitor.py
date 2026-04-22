@@ -46,6 +46,24 @@ def _coerce_threshold_int(value: Any, default: int) -> int:
             return default
     return default
 
+def load_psutil() -> Any:
+    try:
+        import psutil
+
+        return psutil
+    except ModuleNotFoundError:
+        print_error("psutil is required. Run `pip install -e .` first.", exit_code=2)
+
+
+def normalize_load_average(raw: Any) -> list[float] | None:
+    if raw is None:
+        return None
+    if isinstance(raw, (list, tuple)) and len(raw) == 3:
+        try:
+            return [float(raw[0]), float(raw[1]), float(raw[2])]
+        except (TypeError, ValueError):
+            return None
+    return None
 
 
 
