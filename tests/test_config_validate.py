@@ -13,3 +13,21 @@ from sysforge.config.config import (
     validate_against_schema,
 )
 
+
+def test_validate_object_required_and_defaults() -> None:
+    schema: dict = {
+        "type": "object",
+        "properties": {
+            "name": {"type": "string"},
+            "count": {"type": "integer", "default": 0},
+        },
+        "required": ["name"],
+    }
+    errors, _ = validate_against_schema({}, schema)
+    assert errors
+
+    errors, merged = validate_against_schema({"name": "ok"}, schema)
+    assert not errors
+    assert merged["name"] == "ok"
+    assert merged["count"] == 0
+
