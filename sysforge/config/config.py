@@ -162,6 +162,25 @@ def template_path_for_name(name: str) -> Path:
     return template_path
 
 
+@app.command()
+def get(
+    key: str = typer.Argument(..., help="Dot-notation key, like database.host"),
+    file: Path = typer.Option(..., "--file", help="JSON config file"),
+) -> None:
+    try:
+        value = get_nested_value(load_config_file(file), key)
+    except FileNotFoundError:
+        print_error(f"Config file not found: {file}", exit_code=2)
+    except KeyError:
+        print_error(f"Key not found: {key}")
+    except (ValueError, JSONDecodeError, TypeError, OSError) as exc:
+        print_error(str(exc), exit_code=2)
+
+    if isinstance(value, (dict, list)):
+        typer.echo(json.dumps(value, indent=2))
+    else:
+        typer.echo(value)
+
 
 
 
