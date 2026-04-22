@@ -1,3 +1,5 @@
+"""SysForge: a developer operations toolkit."""
+
 from __future__ import annotations
 
 import os
@@ -18,6 +20,7 @@ from sysforge.sysforge_paths import ensure_home_layout
 from sysforge.timetracker.timetracker import app as time_app
 
 app = typer.Typer(help="SysForge: a developer operations toolkit.")
+
 
 def version_callback(value: bool) -> None:
     if value:
@@ -72,6 +75,7 @@ def root(
         get_logger(logger_name)
     logger = get_logger("sysforge")
     logger.debug("SysForge CLI started")
+
 
 @app.command()
 def report(
