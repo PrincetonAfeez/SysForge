@@ -125,6 +125,34 @@ def validate_against_schema(
                 updated_list.append(item)
         return errors, updated_list
 
+    if expected_type in {"integer", "number"}:
+        minimum = schema.get("min")
+        maximum = schema.get("max")
+        if minimum is not None and value < minimum:
+            errors.append(f"{key_path}: value {value} is smaller than min {minimum}")
+        if maximum is not None and value > maximum:
+            errors.append(f"{key_path}: value {value} is larger than max {maximum}")
+
+    if "enum" in schema and value not in schema["enum"]:
+        errors.append(f"{key_path}: value {value!r} is not in allowed options {schema['enum']}")
+
+    return errors, value
+
+
+def diff_configs(left: dict[str, Any], right: dict[str, Any]) -> dict[str, list[str]]:
+    left_flat = flatten_dict(left)
+    right_flat = flatten_dict(right)
+    left_keys = set(left_flat)
+    right_keys = set(right_flat)
+
+    added = [f"{key}: {right_flat[key]!r}" for key in sorted(right_keys - left_keys)]
+    removed = [f"{key}: {left_flat[key]!r}" for key in sorted(left_keys - right_keys)]
+    changed = [
+        f"{key}: {left_flat[key]!r} -> {right_flat[key]!r}"
+        for key in sorted(left_keys & right_keys)
+        if left_flat[key] != right_flat[key]
+    ]
+    return {"added": added, "removed": removed, "changed": changed}
 
 
 
