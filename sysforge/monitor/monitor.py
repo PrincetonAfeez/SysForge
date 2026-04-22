@@ -379,6 +379,34 @@ def print_transitions(
         if previous_levels.get(metric) != level:
             typer.echo(f"{metric.upper()} changed from {previous_levels.get(metric)} to {level}")
 
+def run_monitor(watch: bool, interval: int, config_path: Path | None) -> None:
+    ensure_home_layout()
+    thresholds = read_thresholds(config_path)
+    previous_levels: dict[str, str] | None = None
+
+    try:
+        while True:
+            snapshot = snapshot_system(thresholds)
+            write_snapshot(snapshot, thresholds)
+            render_snapshot(snapshot)
+            print_transitions(previous_levels, snapshot["levels"])
+            previous_levels = snapshot["levels"]
+            logger.info("Health snapshot written with status %s", snapshot["overall_level"])
+
+            if not watch:
+                return
+
+            time.sleep(interval)
+    except KeyboardInterrupt:
+        append_json_line(
+            get_health_log_file(),
+            {
+                "timestamp": datetime.now().isoformat(),
+                "event": "shutdown",
+                "message": "Watch mode interrupted with Ctrl+C",
+            },
+        )
+        typer.echo("Stopped watch mode.")
 
 
 
