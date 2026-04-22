@@ -25,6 +25,54 @@ def version_callback(value: bool) -> None:
         raise typer.Exit()
 
 
+@app.callback()
+def root(
+    verbose: bool = typer.Option(False, "--verbose", help="Show extra logging."),
+    quiet: bool = typer.Option(False, "--quiet", help="Show less logging."),
+    config: Path | None = typer.Option(None, "--config", help="Path to shared sysforge config."),
+    version: bool = typer.Option(
+        False,
+        "--version",
+        callback=version_callback,
+        is_eager=True,
+        help="Show version and exit.",
+    ),
+) -> None:
+    if verbose and quiet:
+        typer.secho(
+            "Choose either --verbose or --quiet, not both.",
+            fg=typer.colors.RED,
+            err=True,
+        )
+        raise typer.Exit(code=1)
+
+    if verbose:
+        os.environ["SYSFORGE_VERBOSE"] = "1"
+    else:
+        os.environ.pop("SYSFORGE_VERBOSE", None)
+
+    if quiet:
+        os.environ["SYSFORGE_QUIET"] = "1"
+    else:
+        os.environ.pop("SYSFORGE_QUIET", None)
+
+    if config is not None:
+        os.environ["SYSFORGE_CONFIG"] = str(config)
+
+    ensure_home_layout()
+    for logger_name in [
+        "sysforge",
+        "sysforge.organizer",
+        "sysforge.mdhtml",
+        "sysforge.briefing",
+        "sysforge.timetracker",
+        "sysforge.config",
+        "sysforge.monitor",
+    ]:
+        get_logger(logger_name)
+    logger = get_logger("sysforge")
+    logger.debug("SysForge CLI started")
+
 
 
 
