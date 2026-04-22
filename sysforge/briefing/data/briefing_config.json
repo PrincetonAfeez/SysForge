@@ -1,0 +1,9 @@
+{
+  "name": "Princeton",
+  "timezone": "America/Los_Angeles",
+  "temperature_unit": "F",
+  "weather_file": "weather.json",
+  "quotes_file": "quotes.json",
+  "calendar_file": "calendar.json",
+  "output_dir": ""
+}

@@ -1,0 +1,60 @@
+body {
+  background: #10151d;
+  color: #edf2f7;
+  font-family: Georgia, "Times New Roman", serif;
+  margin: 0;
+}
+
+.page {
+  max-width: 900px;
+  margin: 2rem auto;
+  padding: 2rem;
+  background: #17212d;
+  border: 1px solid #2f445b;
+  border-radius: 14px;
+  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.3);
+}
+
+.page-header {
+  border-bottom: 1px solid #2f445b;
+  margin-bottom: 1.5rem;
+}
+
+.meta {
+  color: #9fb0c2;
+}
+
+pre,
+code {
+  font-family: "Cascadia Code", Consolas, monospace;
+}
+
+pre {
+  padding: 1rem;
+  overflow-x: auto;
+  background: #0c1218;
+  border-radius: 10px;
+}
+
+blockquote {
+  border-left: 4px solid #f0a24b;
+  margin-left: 0;
+  padding-left: 1rem;
+  color: #d3deea;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th,
+td {
+  border: 1px solid #38506a;
+  padding: 0.5rem;
+  text-align: left;
+}
+
+a {
+  color: #ffd166;
+}

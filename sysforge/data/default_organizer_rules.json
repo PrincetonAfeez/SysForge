@@ -1,0 +1,42 @@
+{
+  "extension_categories": {
+    ".png": "Images",
+    ".jpg": "Images",
+    ".jpeg": "Images",
+    ".gif": "Images",
+    ".svg": "Images",
+    ".pdf": "Docs",
+    ".txt": "Docs",
+    ".md": "Docs",
+    ".docx": "Docs",
+    ".xlsx": "Docs",
+    ".pptx": "Docs",
+    ".py": "Code",
+    ".js": "Code",
+    ".ts": "Code",
+    ".html": "Code",
+    ".css": "Code",
+    ".json": "Code",
+    ".zip": "Archives",
+    ".tar": "Archives",
+    ".gz": "Archives",
+    ".rar": "Archives",
+    ".7z": "Archives",
+    ".mp3": "Media",
+    ".wav": "Media",
+    ".mp4": "Media",
+    ".mov": "Media"
+  },
+  "size_buckets": {
+    "small": {
+      "max_mb": 1
+    },
+    "medium": {
+      "max_mb": 25
+    },
+    "large": {
+      "max_mb": null
+    }
+  },
+  "date_format": "%Y/%m"
+}

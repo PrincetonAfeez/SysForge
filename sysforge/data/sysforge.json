@@ -1,0 +1,39 @@
+{
+  "user": {
+    "name": "Princeton",
+    "timezone": "America/Los_Angeles"
+  },
+  "organizer": {
+    "rules_file": "",
+    "default_conflict_strategy": "rename"
+  },
+  "markdown": {
+    "theme": "light"
+  },
+  "briefing": {
+    "config_file": "",
+    "output_format": "text"
+  },
+  "time": {
+    "project_rates": {
+      "ClientX": 125,
+      "Learning": 0,
+      "Internal": 85
+    }
+  },
+  "health": {
+    "disk_warning": 80,
+    "disk_critical": 95,
+    "memory_warning": 90,
+    "memory_critical": 97,
+    "cpu_warning": 80,
+    "cpu_critical": 95,
+    "rotate_mb": 10,
+    "keep_files": 5,
+    "top_process_scan": 80,
+    "max_rss_scan": 4000
+  },
+  "report": {
+    "default_format": "text"
+  }
+}

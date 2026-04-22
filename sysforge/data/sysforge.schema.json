@@ -1,0 +1,52 @@
+{
+  "type": "object",
+  "required": ["user", "health", "time"],
+  "properties": {
+    "user": {
+      "type": "object",
+      "required": ["name", "timezone"],
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "timezone": {
+          "type": "string"
+        }
+      }
+    },
+    "time": {
+      "type": "object",
+      "properties": {
+        "project_rates": {
+          "type": "object"
+        }
+      }
+    },
+    "health": {
+      "type": "object",
+      "required": ["disk_warning", "memory_warning"],
+      "properties": {
+        "disk_warning": {
+          "type": "integer",
+          "min": 0,
+          "max": 100
+        },
+        "disk_critical": {
+          "type": "integer",
+          "min": 0,
+          "max": 100
+        },
+        "memory_warning": {
+          "type": "integer",
+          "min": 0,
+          "max": 100
+        },
+        "memory_critical": {
+          "type": "integer",
+          "min": 0,
+          "max": 100
+        }
+      }
+    }
+  }
+}
