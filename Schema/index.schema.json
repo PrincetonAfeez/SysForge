@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://sysforge.local/schema/index.schema.json",
+  "title": "SysForge Data Bundle",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "users",
+    "projects",
+    "tasks"
+  ],
+  "properties": {
+    "users": {
+      "type": "array",
+      "items": {
+        "$ref": "./user.schema.json"
+      }
+    },
+    "projects": {
+      "type": "array",
+      "items": {
+        "$ref": "./project.schema.json"
+      }
+    },
+    "tasks": {
+      "type": "array",
+      "items": {
+        "$ref": "./task.schema.json"
+      }
+    }
+  }
+}

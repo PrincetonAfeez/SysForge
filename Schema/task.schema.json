@@ -1,0 +1,67 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://sysforge.local/schema/task.schema.json",
+  "title": "Task",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "id",
+    "projectId",
+    "title",
+    "status",
+    "priority",
+    "createdAt"
+  ],
+  "properties": {
+    "id": {
+      "type": "string",
+      "description": "Unique task identifier."
+    },
+    "projectId": {
+      "type": "string",
+      "description": "ID of the related project."
+    },
+    "assigneeId": {
+      "type": "string",
+      "description": "ID of the assigned user."
+    },
+    "title": {
+      "type": "string",
+      "minLength": 1
+    },
+    "description": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "todo",
+        "in_progress",
+        "blocked",
+        "done"
+      ],
+      "default": "todo"
+    },
+    "priority": {
+      "type": "string",
+      "enum": [
+        "low",
+        "medium",
+        "high"
+      ],
+      "default": "medium"
+    },
+    "dueDate": {
+      "type": "string",
+      "format": "date"
+    },
+    "createdAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "updatedAt": {
+      "type": "string",
+      "format": "date-time"
+    }
+  }
+}
